@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Böhm playground</title>
+<style>
+  :root { --bg: #f2f0eb; --fg: #0b0b0b; --rule: #b8b6b1; --accent: #b5651d; --err: #a3432f; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0b0b0b; --fg: #fafaf8; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font: 500 2.2rem/1.1 Georgia, serif; margin: 0 0 8px; }
+  p { max-width: 66ch; opacity: .8; margin: 0 0 24px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  label, .label { display: block; font: 12px ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; opacity: .6; margin-bottom: 4px; }
+  label.check { display: inline-flex; gap: 6px; align-items: center; margin: 0; }
+  textarea, pre, select, button { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: inherit; }
+  textarea, pre { width: 100%; margin: 0; padding: 12px; background: transparent; border: 1px solid var(--rule); border-radius: 0; }
+  textarea { resize: vertical; tab-size: 2; }
+  #program { height: 340px; }
+  #input { height: 64px; }
+  pre { height: 484px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+  select, button { padding: 6px 12px; background: var(--bg); border: 1px solid var(--fg); cursor: pointer; }
+  button.primary { background: var(--fg); color: var(--bg); }
+  button:disabled { opacity: .35; cursor: default; }
+  .keys { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 8px; }
+  .keys button { padding: 2px 9px; border-color: var(--rule); min-width: 34px; }
+  .err { color: var(--err); }
+  #status { font: 12px ui-monospace, monospace; opacity: .6; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Böhm's language</h1>
+  <p>The language, machine and compiler from Corrado Böhm's 1951 dissertation, running in your browser.
+     Every statement is an assignment: <code>? → a</code> reads a number, <code>a → ?</code> prints one,
+     <code>B → π</code> continues at group B, and <code>Ω → π</code> stops. It is the same Rust program as
+     the command line, compiled to WebAssembly.</p>
+  <div class="bar">
+    <select id="examples" aria-label="Example programs"></select>
+    <select id="mode" aria-label="What to do with the program">
+      <option value="run">Run on Böhm's machine</option>
+      <option value="algebra">Run as algebra, with no machine</option>
+      <option value="listing">Show the instructions</option>
+      <option value="normal">Show the formulas the compiler accepts</option>
+      <option value="verify">Run all three ways and compare</option>
+      <option value="trace">Run, and show every instruction executed</option>
+      <option value="selfhost">Have Böhm's compiler compile itself</option>
+    </select>
+    <button id="run" class="primary">Run</button>
+    <button id="stop" disabled>Stop</button>
+    <label class="check"><input type="checkbox" id="printed"> Compiler as printed in 1954</label>
+    <span id="status"></span>
+  </div>
+  <div class="grid">
+    <div>
+      <label for="program">Program</label>
+      <div class="keys" id="keys" aria-label="Symbols"></div>
+      <textarea id="program" spellcheck="false" wrap="off"></textarea>
+      <label for="input" style="margin-top:12px">Input, read by ?</label>
+      <textarea id="input" spellcheck="false"></textarea>
+    </div>
+    <div>
+      <span class="label">Output</span>
+      <pre id="output" aria-live="polite"></pre>
+    </div>
+  </div>
+</main>
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const examples = await (await fetch("examples.json")).json();
+
+// What each choice passes to the bohm program. `-` is the program on the page.
+const MODES = {
+  run: ["run", "-"],
+  algebra: ["run", "-", "--via", "interp"],
+  listing: ["compile", "-", "--via", "bohm"],
+  normal: ["compile", "-", "--emit", "normal"],
+  verify: ["verify", "-"],
+  trace: ["run", "-", "--trace"],
+  selfhost: ["selfhost"],
+};
+
+for (const example of examples) $("examples").add(new Option(example.name));
+const load = (example) => {
+  $("program").value = example.program;
+  $("input").value = example.input;
+  $("output").textContent = "";
+  $("status").textContent = example.machineOnly ? "this one only means something on the machine" : "";
+};
+$("examples").onchange = () => load(examples[$("examples").selectedIndex]);
+const wanted = new URLSearchParams(location.search).get("example");
+const start = Math.max(0, examples.findIndex((example) => example.name === wanted));
+$("examples").selectedIndex = start;
+load(examples[start]);
+
+// The symbols of the thesis, for keyboards that lack them.
+for (const key of ["→", "π", "π'", "Ω", "↓", "∸", "·", ":", "÷", "∪", "∩", "mod"]) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = key;
+  button.onclick = () => {
+    const box = $("program");
+    const text = key === "mod" ? " mod " : key;
+    box.setRangeText(text, box.selectionStart, box.selectionEnd, "end");
+    box.focus();
+  };
+  $("keys").append(button);
+}
+
+let worker = null;
+const finish = (message) => {
+  worker?.terminate();
+  worker = null;
+  $("run").disabled = false;
+  $("stop").disabled = true;
+  $("status").textContent = message;
+};
+const print = (text, error) => {
+  const span = document.createElement("span");
+  span.textContent = text;
+  if (error) span.className = "err";
+  $("output").append(span);
+  $("output").scrollTop = $("output").scrollHeight;
+};
+const run = () => {
+  worker?.terminate();
+  $("output").textContent = "";
+  $("run").disabled = true;
+  $("stop").disabled = false;
+  $("status").textContent = "running";
+  const started = performance.now();
+  const mode = $("mode").value;
+  const args = [...MODES[mode], ...($("printed").checked ? ["--errata", "none"] : [])];
+  // The trace goes to standard error, but it is not an error.
+  const plain = mode === "trace";
+  worker = new Worker("worker.js", { type: "module" });
+  worker.onmessage = ({ data }) => {
+    if (data.type === "out") print(data.text, data.fd === 2 && !plain);
+    else if (data.type === "error") { print("\n" + data.message, true); finish("stopped"); }
+    else finish(`finished in ${Math.round(performance.now() - started)} ms` + (data.code ? `, exit ${data.code}` : ""));
+  };
+  worker.onerror = (event) => { print("\n" + event.message, true); finish("failed"); };
+  worker.postMessage({ wasmUrl: new URL("bohm.wasm", location.href).href, args, program: $("program").value, input: $("input").value });
+};
+$("run").onclick = run;
+$("stop").onclick = () => finish("stopped");
+$("program").onkeydown = (event) => { if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) run(); };
+</script>
+</body>
+</html>

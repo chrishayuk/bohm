@@ -1,0 +1,21 @@
+# The Collatz sequence from a given number down to 1: halve an even number,
+# triple an odd one and add 1.
+
+π' → A
+? → n
+
+π' → B              # Print n. Stop when it is 1.
+n → ?
+(1 ∩ (n ∸ 1))·C → π
+
+π' → C              # r is 0 for an even number and 1 for an odd one.
+n mod 2 → r
+(1 ∸ r)·D + r·E → π
+
+π' → D
+n:2 → n
+B → π
+
+π' → E
+3·n + 1 → n
+B → π

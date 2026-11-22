@@ -1,0 +1,16 @@
+# The decimal digits of a number, last digit first, then their sum.
+
+π' → A
+? → n
+0 → t
+
+π' → B
+n mod 10 → d
+d → ?
+t + d → t
+n:10 → n
+(1 ∩ n)·B + (1 ∸ n)·C → π
+
+π' → C
+t → ?
+Ω → π

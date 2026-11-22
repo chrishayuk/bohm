@@ -1,0 +1,52 @@
+# Binary search. The input is n, then n numbers in increasing order, then a
+# count q and q numbers to look for. For each, prints its position in the
+# list, counting from 1, or 0 if it is not there.
+
+π' → A
+? → n
+100 → i
+100 + n → e
+
+π' → B              # Read the list into 100 .. e-1.
+(1 ∩ (e ∸ i))·C + (1 ∸ (e ∸ i))·D → π
+
+π' → C
+? → ↓i
+i + 1 → i
+B → π
+
+π' → D
+? → q
+
+π' → E              # For each number to look for.
+(1 ∩ q)·F → π
+
+π' → F              # The number, if present, is in l .. h-1.
+? → v
+q ∸ 1 → q
+100 → l
+e → h
+0 → r
+
+π' → G              # While l < h.
+(1 ∩ (h ∸ l))·H + (1 ∸ (h ∸ l))·N → π
+
+π' → H              # Look at the middle. Continue at I if it is too small,
+(l + h):2 → k       # at J if it is too large, at K if it is v.
+↓k → u
+(1 ∩ (v ∸ u))·I + (1 ∩ (u ∸ v))·J + (1 ∸ (u ÷ v))·K → π
+
+π' → I
+k + 1 → l
+G → π
+
+π' → J
+k → h
+G → π
+
+π' → K
+k ∸ 99 → r
+
+π' → N
+r → ?
+E → π

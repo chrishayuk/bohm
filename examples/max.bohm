@@ -1,0 +1,10 @@
+# The greatest and the least of three numbers. ∪ takes the greater of two
+# numbers and ∩ the smaller, so no choice is needed.
+
+π' → A
+? → a
+? → b
+? → c
+(a ∪ b) ∪ c → ?
+(a ∩ b) ∩ c → ?
+Ω → π

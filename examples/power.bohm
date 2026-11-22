@@ -1,0 +1,25 @@
+# b to the power e by repeated squaring: about as many multiplications as e
+# has binary digits, where the loop in subroutine.bohm takes e of them.
+
+π' → A
+? → b
+? → e
+1 → r
+
+π' → B
+(1 ∩ e)·C + (1 ∸ e)·E → π
+
+π' → C              # If e is odd, multiply the result by b.
+(e mod 2)·D + (1 ∸ (e mod 2))·F → π
+
+π' → D
+r·b → r
+
+π' → F              # Square b and halve e.
+b·b → b
+e:2 → e
+B → π
+
+π' → E
+r → ?
+Ω → π

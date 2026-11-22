@@ -1,0 +1,17 @@
+# The first n Fibonacci numbers.
+
+π' → A
+? → n
+0 → a
+1 → b
+
+π' → B              # Stop when n numbers have been printed.
+(1 ∩ n)·C → π
+
+π' → C
+a → ?
+a + b → c
+b → a
+c → b
+n ∸ 1 → n
+B → π

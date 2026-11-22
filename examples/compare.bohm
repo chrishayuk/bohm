@@ -1,0 +1,26 @@
+# Compare pairs of numbers: print 1 if the first is smaller, 2 if they are
+# equal, 3 if it is greater. The first number on the tape is how many pairs.
+
+π' → A
+? → n
+
+π' → B
+(1 ∩ n)·C → π
+
+π' → C              # Exactly one of the three coefficients is 1.
+n ∸ 1 → n
+? → a
+? → b
+(1 ∩ (b ∸ a))·L + (1 ∸ (a ÷ b))·E + (1 ∩ (a ∸ b))·G → π
+
+π' → L
+1 → ?
+B → π
+
+π' → E
+2 → ?
+B → π
+
+π' → G
+3 → ?
+B → π

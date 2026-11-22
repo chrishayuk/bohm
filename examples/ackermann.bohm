@@ -1,0 +1,48 @@
+# Ackermann's function A(m, n), which is defined by calling itself twice
+# over. There is no recursion in the language, so the values of m still
+# waiting are kept on a stack in the cells from 100; p is the first free
+# cell.
+#
+#   A(0, n) = n + 1
+#   A(m, 0) = A(m - 1, 1)
+#   A(m, n) = A(m - 1, A(m, n - 1))
+
+π' → A
+? → m
+? → n
+100 → p
+m → ↓p
+p + 1 → p
+
+π' → B              # While the stack is not empty, take the top m.
+(1 ∩ (p ∸ 100))·C + (1 ∸ (p ∸ 100))·E → π
+
+π' → C
+p ∸ 1 → p
+↓p → m
+(1 ∸ m)·D + (1 ∩ m)·F → π
+
+π' → D              # m = 0
+n + 1 → n
+B → π
+
+π' → F
+(1 ∸ n)·G + (1 ∩ n)·H → π
+
+π' → G              # n = 0: A(m - 1, 1) is next.
+m ∸ 1 → ↓p
+p + 1 → p
+1 → n
+B → π
+
+π' → H              # Otherwise A(m, n - 1) is next, and m - 1 waits.
+m ∸ 1 → ↓p
+p + 1 → p
+m → ↓p
+p + 1 → p
+n ∸ 1 → n
+B → π
+
+π' → E
+n → ?
+Ω → π

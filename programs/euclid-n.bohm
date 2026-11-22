@@ -1,0 +1,51 @@
+# Thesis 3.4, example 2. The greatest common divisor of n given numbers.
+# Input: n, then the n numbers. They are kept at 101..100+n (rule 3.32, z = 100).
+
+π' → A              # Let n be given and put i = n + 1.
+? → n
+n + 101 → i
+B → π
+
+π' → B              # Decrement i; let a_i be given.
+i ∸ 1 → i           # If i = 1 continue with C, else repeat B.
+? → ↓i
+[(1 ∸ (i ∸ 101))·C] + [(1 ∩ (i ∸ 101))·B] → π
+
+π' → C              # h is initially equal to n. Let m be a_i.
+100 + n → h
+↓i → m
+D → π
+
+π' → D              # Increment i. Let m be the smallest of a_i and m.
+i + 1 → i           # If i = h continue with E, else repeat D.
+↓i∩m → m
+{[(1 ∸ (h ∸ i))·E] + [(1 ∩ (h ∸ i))·D]} → π
+
+π' → E              # Put i = 0 and k = 1.
+100 → i
+101 → k
+F → π
+
+π' → F              # Increment i. Compute the remainder r of the division
+i + 1 → i           # of a_i by m. If r = 0 continue at G, else at H.
+↓i mod m → r
+{[(1 ∸ r)·G] + [(1 ∩ r)·H]} → π
+
+π' → G              # If i = h continue at I, else restart at F.
+{[(1 ∸ (h ∸ i))·I] + [(1 ∩ (h ∸ i))·F]} → π
+
+π' → H              # Put the value of r at index k. Increment k.
+r → ↓k              # Restart at G.
+k + 1 → k
+G → π
+
+π' → I              # Make k equal to h. Put m = r_h. Put i = 1 and make m
+k → h               # equal to r_1. If h = 1 continue at L; else at D.
+m → ↓h
+101 → i
+↓i → m
+{[(1 ∸ (h ∸ 101))·L] + [(1 ∩ (h ∸ 101))·D]} → π
+
+π' → L              # m is the result. Stop.
+m → ?
+Ω → π

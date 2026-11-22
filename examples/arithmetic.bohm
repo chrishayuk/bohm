@@ -1,0 +1,15 @@
+# The eight operations of the machine, applied to two given numbers.
+
+π' → A
+? → a
+? → b
+a + b → ?           # sum
+a·b → ?             # product
+a ∸ b → ?           # difference, or 0 if b is the greater
+b ∸ a → ?
+a:b → ?             # integer quotient
+a mod b → ?         # remainder
+a ÷ b → ?           # absolute difference
+a ∪ b → ?           # the greater
+a ∩ b → ?           # the smaller
+Ω → π

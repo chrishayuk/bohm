@@ -1,0 +1,14 @@
+# The sum 1 + 2 + ... + n.
+
+π' → A
+? → n
+0 → s
+
+π' → B              # Add n to the sum and decrease it, until it reaches 0.
+s + n → s
+n ∸ 1 → n
+(1 ∩ n)·B + (1 ∸ n)·C → π
+
+π' → C
+s → ?
+Ω → π

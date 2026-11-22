@@ -1,0 +1,24 @@
+# machine only
+#
+# A program that writes one of its own instructions. It reads an operation
+# code (1 +, 2 ·, 3 ∸, 4 :, 6 ÷, 7 mod, 8 ∪, 9 ∩) and two numbers, builds the
+# instruction number for "a op b → c", and puts it where group P begins.
+#
+# An instruction is fourteen digits: first operand, operation, second
+# operand, result. a, b and c live at addresses 2, 3 and 4, so the number is
+#     2·10^10 + o·10^8 + 3·10^4 + 4
+#
+# This only means something on the machine. Read as algebra, the formulas of
+# a program are not numbers and cannot be overwritten.
+
+π' → A
+? → o
+? → a
+? → b
+2·10000000000 + o·100000000 + 30004 → ↓P
+P → π
+
+π' → P
+Ω → Ω               # replaced before it is reached
+c → ?
+Ω → π

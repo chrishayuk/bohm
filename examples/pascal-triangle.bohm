@@ -1,0 +1,40 @@
+# Pascal's triangle, rows 0 to n. Each entry is printed on its own line,
+# with a 0 after each row, since 0 is never an entry.
+#
+# The row is kept in the cells from 100. The next row is made in place,
+# from the right, so that each entry is still the old one when it is used.
+
+π' → A
+? → n
+100 → i
+1 → ↓i
+0 → k
+
+π' → B              # Row k has entries 100 .. 100+k. Print them.
+100 → i
+
+π' → C
+(1 ∸ (i ∸ (100 + k)))·D + (1 ∩ (i ∸ (100 + k)))·E → π
+
+π' → D
+↓i → ?
+i + 1 → i
+C → π
+
+π' → E              # End of the row. Stop after row n.
+0 → ?
+(1 ∩ (n ∸ k))·F → π
+
+π' → F              # A new 1 on the right, then add each entry's left
+k + 1 → k           # neighbour to it, from the right.
+100 + k → i
+1 → ↓i
+
+π' → G
+i ∸ 1 → i
+(1 ∩ (i ∸ 100))·H + (1 ∸ (i ∸ 100))·B → π
+
+π' → H
+i ∸ 1 → j
+↓i + ↓j → ↓i
+G → π

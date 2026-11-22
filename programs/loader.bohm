@@ -1,0 +1,44 @@
+# The input program of section 4.1, in the absolute form it must have on the
+# machine (it cannot load itself).
+#
+# Group ρ is not Böhm's. The thesis has no way to put constants in memory, so
+# this follows Peter Sestoft's appendix A.2: ρ reads pairs (address, number)
+# from the tape and stores them, until the address is 0; the number after
+# that 0 is the address of α.
+#
+# Two things differ from the printed text. Böhm's a, b, c, d, f are written
+# a0, b0, c0, d0, f0, so that loading a program does not disturb its letters.
+# And the loader sits at 940, not 970, to make room for ρ and the constants.
+
+origin 940
+cells 970
+temps 990
+
+π' → ρ
+? → Ω
+? → ↓Ω
+ρ → π
+
+# α. The next instruction number on the tape is called a; if it is zero, stop.
+π' → α
+? → a0
+(1 ∸ a0)·Ω + (1 ∩ a0)·β → π
+
+# β. If the 5th to 10th digits of a are 050999 continue at γ, else at δ.
+π' → β
+a0 mod 10000 → b0
+(a0 ∸ b0) → c0
+(c0 + 9490010000) → f0
+f0 mod 10000000000 → d0
+(1 ∸ d0)·γ + (1 ∩ d0)·δ → π
+
+# γ. The number in π′ is transferred to the address designated by b.
+π' → γ
+π' → ↓b0
+α → π
+
+# δ. The number a is transferred to the address designated by π′.
+π' → δ
+a0 → ↓π'
+(π' + 1) → π'
+α → π

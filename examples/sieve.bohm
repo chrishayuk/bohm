@@ -1,0 +1,30 @@
+# The sieve of Eratosthenes up to n (at most 399). Cell 100 + k holds 0
+# while k may be prime and 1 once it has been crossed out.
+
+π' → A
+? → n
+2 → p
+
+π' → B              # While p <= n.
+(1 ∸ (p ∸ n))·C → π
+
+π' → C              # If p has been crossed out continue at G.
+100 + p → i
+(1 ∸ ↓i)·D + (1 ∩ ↓i)·G → π
+
+π' → D
+p → ?
+p·p → m
+
+π' → E              # Cross out the multiples m <= n of p.
+(1 ∸ (m ∸ n))·F + (1 ∩ (m ∸ n))·G → π
+
+π' → F
+100 + m → i
+1 → ↓i
+m + p → m
+E → π
+
+π' → G
+p + 1 → p
+B → π

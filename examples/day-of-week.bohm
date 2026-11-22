@@ -1,0 +1,27 @@
+# The day of the week of a date, by Zeller's rule. The input is a count,
+# then that many dates as day, month, year. Prints 1 for Monday up to 7
+# for Sunday.
+#
+# January and February count as months 13 and 14 of the year before. c is
+# 1 for those two months and 0 otherwise, so the adjustment is arithmetic
+# and needs no choice.
+
+π' → A
+? → q
+
+π' → B
+(1 ∩ q)·C → π
+
+π' → C
+? → d
+? → m
+? → y
+1 ∸ (m ∸ 2) → c
+m + 12·c → m
+y ∸ c → y
+y mod 100 → k
+y:100 → j
+d + 13·(m + 1):5 + k + k:4 + j:4 + 5·j → h
+((h + 5) mod 7) + 1 → ?
+q ∸ 1 → q
+B → π

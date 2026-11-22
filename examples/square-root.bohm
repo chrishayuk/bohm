@@ -1,0 +1,26 @@
+# Integer square roots by Newton's method. The first number on the tape is
+# how many numbers follow.
+
+π' → A
+? → k
+
+π' → B
+(1 ∩ k)·C → π
+
+π' → C              # Start from x = n and y = half of n, rounded up.
+k ∸ 1 → k
+? → n
+n → x
+n:2 + (n mod 2) → y
+
+π' → D              # While y < x, x becomes y and y the mean of x and n : x.
+(1 ∩ (x ∸ y))·E + (1 ∸ (x ∸ y))·F → π
+
+π' → E
+y → x
+(x + n:x):2 → y
+D → π
+
+π' → F
+x → ?
+B → π

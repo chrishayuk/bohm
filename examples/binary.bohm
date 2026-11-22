@@ -1,0 +1,18 @@
+# The binary digits of a number, most significant first.
+
+π' → A
+? → n
+1 → p
+
+π' → B              # Find the largest power of two p that is <= n.
+(1 ∸ (p·2 ∸ n))·C + (1 ∩ (p·2 ∸ n))·D → π
+
+π' → C
+p·2 → p
+B → π
+
+π' → D              # Print the digit at p, remove it, halve p. Stop when p is 0.
+n:p → ?
+n mod p → n
+p:2 → p
+(1 ∩ p)·D → π

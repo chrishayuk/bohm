@@ -1,0 +1,22 @@
+# Thesis 3.4, example 1. Euclid's algorithm: the greatest common divisor m of
+# two given numbers.
+
+π' → A              # Let a and b be two given numbers.
+? → a               # Let M be the greatest and m the least of these.
+? → b
+a∪b → M
+a∩b → m
+B → π
+
+π' → B              # Let r be the remainder of division of M by m.
+M mod m → r         # If r = 0 continue at C, otherwise at D.
+{[(1 ∸ r)·C] + [(1 ∩ r)·D]} → π
+
+π' → C              # m is the result. Stop.
+m → ?
+Ω → π
+
+π' → D              # Rename m as M, and r as m; continue at B.
+m → M
+r → m
+B → π

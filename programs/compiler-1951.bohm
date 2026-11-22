@@ -1,0 +1,246 @@
+# Corrado Böhm's program for automatic programming: chapter 7 of
+# "Calculatrices digitales. Du déchiffrage de formules logico-mathématiques
+# par la machine même dans la conception du programme" (ETH Zürich, 1951;
+# printed Bologna, 1954).
+#
+# The formulas are transcribed from pages 39-43 of the French printing and are
+# left exactly as printed, misprints included. Corrections live in src/lib.rs
+# as numbered errata and are applied on request, never here.
+#
+# Input tape: a program, one number per teletypewriter key (section 4.3).
+# Output tape: the same program as instruction numbers.
+#
+# Not in chapter 7, and supplied here:
+#   * the constants (the thesis names them but has no way to load them);
+#   * group t, the decision table (5.61). Section 5.7 says only that the cells
+#     t, t+1, ..., t+24 hold its 25 instructions;
+#   * the layout directives.
+
+origin 200          # first instruction
+cells 900           # primed groups and constants
+temps 800           # intermediate results of the compiler's own bracketed formulas
+
+const m = 850       # base of the cells that hold F(n) and the pending instruction numbers
+const m1 = 10000000000
+const m2 = 100000000
+const m3 = 10000
+const g1 = 510000000051     # X op V → X    (6.3; this one is given in the thesis)
+const g2 = 460000510046     # S op X → S
+const g3 = 500000051        #      V → X
+const g4 = 460000000046     # S op V → S
+const g5 = 500460000        #      S → V
+const g6 = 500000046        #      V → S
+
+# A. Analyse the first symbol c of a formula. If it is a ) or a → or an
+# operation, stop. If it is a variable continue at A′; if it is a ( at B.
+π' → A
+? → c
+c mod 5 → r
+[(r+1) mod 2]·Ω + [[1 ∸ (r÷3)]·A'] + [[1 ∸ (r÷1)]·B] → π
+
+# B. Put Y = 0 (up to a constant m), p = 1 and compute F(1) (see 5.4).
+π' → B
+m → Y
+1 → p
+m+p → X
+Y → ↓X
+C → π
+
+# C. Analyse the next symbol; s is the nature of the preceding symbol and r
+# that of the current one. If it is a ( continue at E, if a ) at F, else at D.
+π' → C
+r → s
+? → c
+c:5 → k
+c mod 5 → r
+[1 ∩ (r∸1)]·D + (1∩r)·E + (1∸r)·F → π
+
+# D. The natures of the two last symbols choose the next group (table 5.61).
+π' → D
+5·r+s+t → π
+
+# E. The value of F(n) for an opening parenthesis (5.5).
+π' → E
+p+1 → p
+X → Y
+m+p → X
+Y → ↓X
+D → π
+
+# F. The value of F(n) for a closing parenthesis (5.5).
+π' → F
+X → Y
+↓X → X
+D → π
+
+# G. If more parentheses have been closed than opened, stop.
+π' → G
+[[1 ∸ (Y÷m)]·Ω] + [[1 ∩ (Y÷m)]·C] → π
+
+# H. The last 4 digits of the instruction number; save it at the address
+# given by the level of the last parenthesis analysed.
+π' → H
+n+Y → ↓Y
+C → π
+
+# I. The last 8 digits of the instruction number; save it as under H.
+π' → I
+m3·X + Y + n → ↓Y
+C → π
+
+# J. If closing and opening parentheses do not balance, stop.
+π' → J
+[1 ∩ (X÷m)]·Ω + [1 ∸ (X÷m)]·M → π
+
+# M. The formula's last instruction number (a store) up to its 11th digit.
+# L is the temporary address of the last instruction number computed.
+π' → M
+5·m2 + m3·Y → n
+m+p → L
+N → π
+
+# N. Record the number at address L on the output tape, decrement L, and
+# repeat until all the computed numbers are out.
+π' → N
+↓L → ?
+L∸1 → L
+[1 ∸ (L∸m)]·C + [1 ∩ (L∸m)]·N → π
+
+# P. The first 4 digits of the instruction number.
+π' → P
+k·m1 → n
+C → π
+
+# Q. Complete the last instruction number of a formula with parentheses and
+# record it on the output tape.
+π' → Q
+k+n → ?
+A → π
+
+# R. Digits 7 to 10 of the instruction number.
+π' → R
+k·m3 + n → n
+C → π
+
+# T. Check the balance of parentheses as under G.
+π' → T
+[[1 ∸ (Y÷m)]·Ω] + [[1 ∩ (Y÷m)]·U] → π
+
+# U. The first 6 digits of the instruction number.
+π' → U
+Y·m1 + k·m2 → n
+C → π
+
+# W. Digits 5 and 6 of the instruction number.
+π' → W
+k·m2 + n → n
+C → π
+
+# A′. The second symbol of a formula without parentheses. If it is a variable,
+# a parenthesis or an operation other than + ∸ · : → then stop. If it is →
+# continue at D′; if + or ∸ at F′; if · or : at G′.
+π' → A'
+c:5 → h
+? → c
+c:5 → k
+c mod 5 → r
+[[1 ∩ (k∸5)] + (1 ∸ (k∸5))·(1 ∸ (r÷3))]·Ω + [1 ∸ (r÷2)]·D' + [1 ∸ (r÷4)]·[k mod 2]·F' + [1 ∸ (r÷4)]·[(k+1) mod 2]·G' → π
+
+# B′. Another symbol. If it is not a variable, stop. If the symbol before it
+# was → continue at N′, else at C′.
+π' → B'
+k → j
+r → q
+? → c
+c:5 → k
+c mod 5 → r
+[1 ∩ (r÷3)]·Ω + [1 ∸ (r÷3)]·{[1 ∸ (q÷2)]·N' + [1 ∩ (q÷2)]·C'} → π
+
+# C′. Another symbol. If the operation before the last variable was · or :
+# continue at H′. If it was + or ∸, continue at M′ when this one is · or :
+# and at J′ otherwise.
+π' → C'
+k → h
+? → c
+c:5 → k
+c mod 5 → r
+{[1 ∩ (k∸5)] + [1 ∸ (k∸5)]·[1 ∸ (r÷3)]}·Ω + [(1+j) mod 2]·H' + (j mod 2)·{[(k+1) mod 2]·M' + (k mod 2)·J'} → π
+
+# D′. The third symbol. If it is not a variable, stop.
+π' → D'
+? → c
+c:5 → k
+c mod 5 → r
+[1 ∩ (r÷3)]·Ω + [1 ∸ (r÷3)]·E' → π
+
+# E′. The instruction number of a formula that is a plain store.
+π' → E'
+h·m3 + k → ?
+A → π
+
+# F′. The first instruction number, of type g6.
+π' → F'
+h·m3 + g6 → ?
+B' → π
+
+# G′. The first instruction number, 0 → S, and the second, of type g3.
+π' → G'
+998·m3 + g6 → ?
+h·m3 + g3 → ?
+1 → g
+B' → π
+
+# H′. An instruction number of type g1.
+π' → H'
+g1 + j·m2 + h·m3 → ?
+(k mod 2)·I' + [(k+1) mod 2]·B' → π
+
+# I′. An instruction number of type g2.
+π' → I'
+g·m2 + g2 → ?
+B' → π
+
+# J′. An instruction number of type g4.
+π' → J'
+j·m2 + h·m3 + g4 → ?
+B' → π
+
+# M′. An instruction number of type g3.
+π' → M'
+j → g
+h·m3 + g3 → ?
+B' → π
+
+# N′. The last instruction number of a formula without parentheses, of type g5.
+π' → N'
+k + g5 → ?
+A → π
+
+# t. The decision table (5.61). Entry 5·r + s, where r is the nature of the
+# last symbol and s of the one before:  0 )   1 (   2 →   3 variable   4 operation
+π' → t
+G → π       # ) )
+Ω → π       # ( )
+Ω → π       # → )
+H → π       # v )
+Ω → π       # o )
+Ω → π       # ) (
+C → π       # ( (
+Ω → π       # → (
+Ω → π       # v (
+I → π       # o (
+J → π       # ) →
+Ω → π       # ( →
+Ω → π       # → →
+Ω → π       # v →
+Ω → π       # o →
+Ω → π       # ) v
+P → π       # ( v
+Q → π       # → v
+Ω → π       # v v
+R → π       # o v
+T → π       # ) o
+Ω → π       # ( o
+Ω → π       # → o
+W → π       # v o
+Ω → π       # o o

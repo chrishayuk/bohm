@@ -1,0 +1,52 @@
+# Sort n numbers into increasing order by insertion: each number in turn is
+# moved left past every larger number before it.
+
+π' → A
+? → n
+100 → i
+100 + n → e
+
+π' → B              # Read the numbers into 100 .. e-1.
+(1 ∩ (e ∸ i))·C + (1 ∸ (e ∸ i))·D → π
+
+π' → C
+? → ↓i
+i + 1 → i
+B → π
+
+π' → D
+101 → i
+
+π' → E              # For each i from the second number to the last.
+(1 ∩ (e ∸ i))·F + (1 ∸ (e ∸ i))·K → π
+
+π' → F              # v is the number to insert; j is where it will go.
+↓i → v
+i → j
+
+π' → G              # While j > 100 and the number before j is larger than v.
+j ∸ 1 → k
+↓k → u
+(1 ∩ (j ∸ 100))·(1 ∩ (u ∸ v)) → c
+(1 ∩ c)·H + (1 ∸ c)·I → π
+
+π' → H              # Move it one place right.
+u → ↓j
+k → j
+G → π
+
+π' → I
+v → ↓j
+i + 1 → i
+E → π
+
+π' → K
+100 → i
+
+π' → L
+(1 ∩ (e ∸ i))·M → π
+
+π' → M
+↓i → ?
+i + 1 → i
+L → π

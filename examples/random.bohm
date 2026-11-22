@@ -1,0 +1,16 @@
+# Dice rolls from a linear congruential generator: each number is 75 times
+# the last, plus 74, modulo 65537. The input is the first number and how
+# many rolls to print.
+
+π' → A
+? → v
+? → n
+
+π' → B
+(1 ∩ n)·C → π
+
+π' → C
+(75·v + 74) mod 65537 → v
+(v mod 6) + 1 → ?
+n ∸ 1 → n
+B → π

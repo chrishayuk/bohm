@@ -1,0 +1,66 @@
+# Knuth and Trabb Pardo's TPK program (see tpk.bohm) with two names changed so
+# that it survives Böhm's compiler: group S is called K and variable X is
+# called Z. Chapter 6 keeps the sum and the product of every polynomial in
+# the letters S and X, so a program may not use them for anything else.
+#
+# Read eleven numbers a_0..a_10. For i = 10 down to 0 compute
+# f(a_i) = sqrt(a_i) + 5·a_i³ and print i and the value, or i and 999 if the
+# value exceeds 400. R..V is an integer square root subroutine: x is the
+# argument, r the result, Z the group to return to.
+
+π' → A              # Set i = 0 (plus the base address 100 for the input array a).
+100 → i
+B → π
+
+π' → B              # Let a new input a_i be given. Increase i by unity,
+? → ↓i              # and proceed to C if i > 10, otherwise repeat B.
+i + 1 → i
+[(1 ∩ (i ∸ 110))·C] + [(1 ∸ (i ∸ 110))·B] → π
+
+π' → C              # Set i = 10.
+110 → i
+
+π' → D              # Call x the number a_i, and prepare to calculate its
+↓i → x              # square root r (using subroutine R), returning to E.
+E → Z
+R → π
+
+π' → E              # Calculate f(a_i) and attribute it to y.
+r + 5·↓i·↓i·↓i → y  # If y > 400, continue at F, otherwise at G.
+[(1 ∩ (y ∸ 400))·F] + [(1 ∸ (y ∸ 400))·G] → π
+
+π' → F              # Output the actual value of i, then the value 999
+i ∸ 100 → ?         # ("too large"). Proceed to H.
+999 → ?
+H → π
+
+π' → G              # Output the actual values of i and y.
+i ∸ 100 → ?
+y → ?
+H → π
+
+π' → H              # Decrease i by unity, and return to D if i >= 0.
+i ∸ 1 → i           # Otherwise stop.
+[(1 ∸ (100 ∸ i))·D] + [(1 ∩ (100 ∸ i))·Ω] → π
+
+π' → R              # Set r = 0 and t = 2^46.
+0 → r
+70368744177664 → t
+K → π
+
+π' → K              # If r + t <= x, go to T, otherwise go to U.
+r + t ∸ x → u
+[(1 ∸ u)·T] + [(1 ∩ u)·U] → π
+
+π' → T              # Decrease x by r + t, divide r by 2, increase r by t,
+x ∸ r ∸ t → x       # and go to V.
+r:2 + t → r
+V → π
+
+π' → U              # Divide r by 2.
+r:2 → r
+V → π
+
+π' → V              # Divide t by 4. If t = 0, exit, otherwise return to S.
+t:4 → t
+[(1 ∸ t)·Z] + [(1 ∩ t)·K] → π

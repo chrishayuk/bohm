@@ -1,0 +1,36 @@
+# A calculator. Each line of input is an operation number and two operands:
+# 1 add, 2 multiply, 3 subtract, 4 divide. Operation 0 stops.
+#
+# Group T is a table of jumps, one instruction each. T + o - 1 is the
+# address of the jump for operation o.
+
+π' → A
+? → o
+(1 ∩ o)·B → π
+
+π' → B
+? → a
+? → b
+T + o ∸ 1 → π
+
+π' → T
+P → π
+M → π
+D → π
+Q → π
+
+π' → P
+a + b → ?
+A → π
+
+π' → M
+a·b → ?
+A → π
+
+π' → D
+a ∸ b → ?
+A → π
+
+π' → Q
+a:b → ?
+A → π

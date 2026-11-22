@@ -1,0 +1,62 @@
+# The Towers of Hanoi for n discs. Each move is printed as two digits:
+# 13 means "from peg 1 to peg 3".
+#
+# The language has no recursion, so the program keeps its own stack in the
+# cells from 100 upward; p is the address of the first free cell. Group H
+# moves n discs from peg f to peg t using peg v, then continues at the group
+# named in z.
+
+π' → A
+? → n
+1 → f
+3 → t
+2 → v
+100 → p
+E → z
+
+π' → H              # Nothing to do for 0 discs: return.
+(1 ∸ n)·z + (1 ∩ n)·I → π
+
+π' → I              # Save n, f, t, v and z. Move n-1 discs from f to v,
+n → ↓p              # and come back at J.
+p + 1 → p
+f → ↓p
+p + 1 → p
+t → ↓p
+p + 1 → p
+v → ↓p
+p + 1 → p
+z → ↓p
+p + 1 → p
+n ∸ 1 → n
+t → u
+v → t
+u → v
+J → z
+H → π
+
+π' → J              # Recall n, f, t and v. Move the largest disc.
+p ∸ 5 → q
+↓q → n
+q + 1 → q
+↓q → f
+q + 1 → q
+↓q → t
+q + 1 → q
+↓q → v
+f·10 + t → ?
+n ∸ 1 → n           # Move n-1 discs from v to t, and come back at K.
+f → u
+v → f
+u → v
+K → z
+H → π
+
+π' → K              # Recall z, discard the saved numbers, and return.
+p ∸ 1 → p
+↓p → z
+p ∸ 4 → p
+z → π
+
+π' → E
+Ω → π

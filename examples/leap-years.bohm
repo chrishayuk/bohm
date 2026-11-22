@@ -1,0 +1,20 @@
+# Print 1 for a leap year and 0 otherwise. The first number on the tape is
+# how many years follow.
+#
+# With 1 for true and 0 for false, · is "and" and 1 ∩ (… + …) is "or"
+# (chapter 8 of the thesis).
+
+π' → A
+? → k
+
+π' → B
+(1 ∩ k)·C → π
+
+π' → C
+? → y
+1 ∸ (y mod 4) → a           # divisible by 4
+1 ∩ (y mod 100) → b         # not divisible by 100
+1 ∸ (y mod 400) → c         # divisible by 400
+1 ∩ (a·b + c) → ?
+k ∸ 1 → k
+B → π

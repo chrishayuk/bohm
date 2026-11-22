@@ -1,0 +1,17 @@
+# n factorial. 16! is the largest that fits in 14 digits.
+
+π' → A
+? → n
+1 → f
+
+π' → B              # While n > 0 continue at C, otherwise at D.
+(1 ∩ n)·C + (1 ∸ n)·D → π
+
+π' → C
+f·n → f
+n ∸ 1 → n
+B → π
+
+π' → D
+f → ?
+Ω → π

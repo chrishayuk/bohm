@@ -1,0 +1,5 @@
+# Add two numbers. Each ? in a formula reads the next number from the tape.
+
+π' → A
+? + ? → ?
+Ω → π

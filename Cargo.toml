@@ -1,0 +1,8 @@
+[package]
+name = "bohm"
+version = "0.1.0"
+edition = "2021"
+description = "Corrado Böhm's 1951 language, three-address machine, loader and self-describing compiler"
+license = "MIT"
+
+[dependencies]

@@ -1,0 +1,30 @@
+# The numbers from a to b that read the same backwards.
+
+π' → A
+? → a
+? → b
+
+π' → B              # While a <= b.
+(1 ∸ (a ∸ b))·C → π
+
+π' → C              # Reverse the digits of a into r.
+a → v
+0 → r
+
+π' → D
+(1 ∩ v)·E + (1 ∸ v)·F → π
+
+π' → E
+r·10 + (v mod 10) → r
+v:10 → v
+D → π
+
+π' → F              # Print a if it equals its reverse.
+(1 ∸ (a ÷ r))·G + (1 ∩ (a ÷ r))·H → π
+
+π' → G
+a → ?
+
+π' → H
+a + 1 → a
+B → π

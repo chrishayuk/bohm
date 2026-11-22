@@ -1,0 +1,15 @@
+# The first n triangular numbers: 1, 1+2, 1+2+3, ...
+
+π' → A
+? → n
+1 → i
+0 → t
+
+π' → B              # While i <= n.
+(1 ∸ (i ∸ n))·C → π
+
+π' → C
+t + i → t
+t → ?
+i + 1 → i
+B → π

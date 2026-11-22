@@ -1,0 +1,50 @@
+# Sort n numbers into increasing order.
+
+π' → A
+? → n
+100 → i
+100 + n → e
+
+π' → B              # Read the numbers into 100 .. e-1.
+(1 ∩ (e ∸ i))·C + (1 ∸ (e ∸ i))·D → π
+
+π' → C
+? → ↓i
+i + 1 → i
+B → π
+
+π' → D              # One pass over the numbers. w records whether any pair
+0 → w               # was exchanged.
+100 → i
+
+π' → E
+i + 1 → j
+(1 ∩ (e ∸ j))·F + (1 ∸ (e ∸ j))·I → π
+
+π' → F              # If the pair at i and j is out of order continue at G.
+↓i → a
+↓j → b
+(1 ∩ (a ∸ b))·G + (1 ∸ (a ∸ b))·H → π
+
+π' → G
+b → ↓i
+a → ↓j
+1 → w
+
+π' → H
+j → i
+E → π
+
+π' → I              # Another pass if anything moved.
+(1 ∩ w)·D + (1 ∸ w)·J → π
+
+π' → J
+100 → i
+
+π' → K
+(1 ∩ (e ∸ i))·L → π
+
+π' → L
+↓i → ?
+i + 1 → i
+K → π

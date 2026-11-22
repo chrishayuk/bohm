@@ -1,0 +1,22 @@
+# The value of a polynomial by Horner's rule. The input is x, the number
+# of coefficients, and the coefficients from the highest power down.
+#
+# 2 4  1 0 3 5  is x³ + 3x + 5 at x = 2.
+
+π' → A
+? → x
+? → n
+0 → r
+
+π' → B
+(1 ∩ n)·C + (1 ∸ n)·D → π
+
+π' → C
+? → c
+r·x + c → r
+n ∸ 1 → n
+B → π
+
+π' → D
+r → ?
+Ω → π

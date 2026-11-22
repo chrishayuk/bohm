@@ -1,0 +1,36 @@
+# Make an amount in pence from the fewest coins. Prints how many of each
+# coin, largest first: 200, 100, 50, 20, 10, 5, 2 and 1.
+#
+# The coins are put in the cells from 100, with a 0 to mark the end.
+
+π' → A
+? → a
+100 → i
+200 → ↓i
+i + 1 → i
+100 → ↓i
+i + 1 → i
+50 → ↓i
+i + 1 → i
+20 → ↓i
+i + 1 → i
+10 → ↓i
+i + 1 → i
+5 → ↓i
+i + 1 → i
+2 → ↓i
+i + 1 → i
+1 → ↓i
+i + 1 → i
+0 → ↓i
+100 → i
+
+π' → B              # While the coin at i is not the 0 at the end.
+↓i → c
+(1 ∩ c)·C → π
+
+π' → C
+a:c → ?
+a mod c → a
+i + 1 → i
+B → π

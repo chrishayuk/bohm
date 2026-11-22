@@ -1,0 +1,12 @@
+# Count down from a given number to zero.
+
+π' → A
+? → n
+
+π' → B              # Print n. If n is 0 there is no next group: stop.
+n → ?
+(1 ∩ n)·C → π
+
+π' → C              # Decrease n and repeat.
+n ∸ 1 → n
+B → π

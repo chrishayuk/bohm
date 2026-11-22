@@ -1,0 +1,14 @@
+# Reads a count and that many numbers. For each prints 1 if it is odd and
+# 0 if it is even.
+
+π' → A
+? → c
+
+π' → B
+(1 ∩ c)·C → π
+
+π' → C
+? → v
+v mod 2 → ?
+c ∸ 1 → c
+B → π

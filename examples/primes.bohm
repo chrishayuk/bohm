@@ -1,0 +1,29 @@
+# The prime numbers up to n, by trial division.
+
+π' → A
+? → n
+2 → p
+
+π' → B              # While p <= n. Otherwise there is no next group.
+(1 ∸ (p ∸ n))·C → π
+
+π' → C
+2 → d
+
+π' → D              # Try divisors d while d·d <= p. If none divides, p is prime.
+(1 ∸ (d·d ∸ p))·E + (1 ∩ (d·d ∸ p))·F → π
+
+π' → E
+p mod d → r
+(1 ∩ r)·G + (1 ∸ r)·H → π
+
+π' → G
+d + 1 → d
+D → π
+
+π' → F
+p → ?
+
+π' → H
+p + 1 → p
+B → π

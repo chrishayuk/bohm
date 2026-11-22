@@ -1,0 +1,27 @@
+# The prime factors of n, smallest first.
+
+π' → A
+? → n
+2 → d
+
+π' → B              # While d·d <= n, d may divide n.
+(1 ∸ (d·d ∸ n))·C + (1 ∩ (d·d ∸ n))·F → π
+
+π' → C
+n mod d → r
+(1 ∸ r)·D + (1 ∩ r)·E → π
+
+π' → D              # d divides n: print it and divide it out.
+d → ?
+n:d → n
+B → π
+
+π' → E
+d + 1 → d
+B → π
+
+π' → F              # What is left is 1 or a prime.
+(1 ∩ (n ∸ 1))·G → π
+
+π' → G
+n → ?

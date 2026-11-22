@@ -1,0 +1,37 @@
+# A subroutine. Group P raises b to the power e, leaves the result in r, and
+# continues at the group whose name was put in z.
+
+π' → A
+2 → b
+10 → e
+B → z
+P → π
+
+π' → B
+r → ?
+3 → b
+5 → e
+C → z
+P → π
+
+π' → C
+r → ?
+10 → b
+13 → e
+D → z
+P → π
+
+π' → D
+r → ?
+Ω → π
+
+π' → P
+1 → r
+
+π' → Q              # While e > 0 continue at R, otherwise return.
+(1 ∩ e)·R + (1 ∸ e)·z → π
+
+π' → R
+r·b → r
+e ∸ 1 → e
+Q → π

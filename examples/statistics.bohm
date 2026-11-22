@@ -1,0 +1,26 @@
+# Sum, least, greatest and mean of n numbers.
+
+π' → A
+? → n
+n → c
+0 → t
+0 → h
+99999999999999 → l
+
+π' → B
+(1 ∩ c)·C + (1 ∸ c)·D → π
+
+π' → C
+? → v
+t + v → t
+h ∪ v → h
+l ∩ v → l
+c ∸ 1 → c
+B → π
+
+π' → D
+t → ?
+l → ?
+h → ?
+t:n → ?
+Ω → π

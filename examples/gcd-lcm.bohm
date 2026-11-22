@@ -1,0 +1,21 @@
+# Greatest common divisor and least common multiple of two numbers.
+
+π' → A
+? → a
+? → b
+a → m
+b → n
+
+π' → B              # Euclid: (m, n) becomes (n, m mod n) until n is 0.
+(1 ∩ n)·C + (1 ∸ n)·D → π
+
+π' → C
+m mod n → r
+n → m
+r → n
+B → π
+
+π' → D
+m → ?               # the divisor
+a:m·b → ?           # the multiple: a divided by the divisor, times b
+Ω → π

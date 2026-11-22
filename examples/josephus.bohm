@@ -1,0 +1,30 @@
+# The Josephus problem: n people stand in a circle and every k-th is
+# removed until one is left. Prints the order in which they go; the last
+# number is the survivor.
+#
+# Cell 100 + i holds 1 once person i has gone.
+
+π' → A
+? → n
+? → k
+n → l               # l people are left
+0 → i
+
+π' → B              # While anyone is left, count k people who are still in.
+k → c
+(1 ∩ l)·C → π
+
+π' → C              # Step to the next person, round the circle.
+(i mod n) + 1 → i
+100 + i → a
+(1 ∸ ↓a)·D + (1 ∩ ↓a)·C → π
+
+π' → D              # Still in: count them. The k-th goes.
+c ∸ 1 → c
+(1 ∩ c)·C + (1 ∸ c)·E → π
+
+π' → E
+1 → ↓a
+i → ?
+l ∸ 1 → l
+B → π

@@ -1,0 +1,23 @@
+# Read n numbers and print them in reverse order. The numbers are kept in
+# the cells 100, 101, ...; i holds the address of the one in hand.
+
+π' → A
+? → n
+100 → i
+100 + n → e
+
+π' → B              # Read while i < e.
+(1 ∩ (e ∸ i))·C + (1 ∸ (e ∸ i))·D → π
+
+π' → C
+? → ↓i
+i + 1 → i
+B → π
+
+π' → D              # Print while i > 100.
+(1 ∩ (i ∸ 100))·E → π
+
+π' → E
+i ∸ 1 → i
+↓i → ?
+D → π

@@ -1,0 +1,12 @@
+# Exchange two numbers without a third variable. It works when the sum of
+# the two fits in 14 digits.
+
+π' → A
+? → a
+? → b
+a + b → a
+a ∸ b → b
+a ∸ b → a
+a → ?
+b → ?
+Ω → π
