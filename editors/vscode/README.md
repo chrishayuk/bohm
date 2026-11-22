@@ -24,12 +24,12 @@ Editor support for the language of Corrado Böhm's 1951 dissertation.
 
 ## Install
 
-Download `bohm-language-0.1.0.vsix` from the
+Download `bohm-language-0.1.1.vsix` from the
 [latest release](https://github.com/chrishayuk/bohm/releases/latest) and
 install it:
 
 ```
-code --install-extension bohm-language-0.1.0.vsix
+code --install-extension bohm-language-0.1.1.vsix
 ```
 
 That is all it needs. The extension carries the `bohm` program compiled to

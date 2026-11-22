@@ -2,7 +2,7 @@
   "name": "bohm-language",
   "displayName": "Böhm (1951)",
   "description": "Syntax highlighting, a language server and run commands for the language of Corrado Böhm's 1951 dissertation.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "chrishayuk",
   "license": "Apache-2.0",
   "repository": {
@@ -139,7 +139,7 @@
     "build": "node build.mjs",
     "test": "node test/grammar.test.js && node test/server.test.js",
     "test:vscode": "node test/run-vscode.js",
-    "package": "node build.mjs && vsce package --no-dependencies --skip-license"
+    "package": "node build.mjs && vsce package --no-dependencies"
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.1"
