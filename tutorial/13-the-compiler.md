@@ -57,7 +57,8 @@ $ bohm compile examples/echo.bohm --via bohm --emit code
 `--via bohm` means the numbers were produced by Böhm's own compiler,
 running as instructions on the simulated machine. Leave it out and they
 come from a second translator, written in Rust from the prose of the
-dissertation. The two are compared in every test, and `bohm verify` does it
+dissertation. The test suite compares the two, number for number, on the
+dissertation's examples and on random formulas, and `bohm verify` does it
 for any program:
 
 ```console
@@ -115,29 +116,67 @@ setting.
 
 ## What was wrong with it
 
-As printed in 1954, the compiler does not work. Four corrections are
-needed, and with any one left out it cannot get through its own text:
+As printed in 1954, the compiler does not work. The tools make four
+corrections, and with any one left out it cannot get through its own text.
+Three are slips. The fourth, `names`, is needed because the tools compile
+the compiler's formulas without brackets as chapter 6 polynomials, which
+work in `X`. Put every formula in brackets instead and the compiler keeps
+its `X` without being renamed; a test checks that. Each correction is
+labelled with its kind. The transcription itself also supplies two arrows
+that the printing leaves out:
 
 ```console
 $ bohm errata
-branch
+Corrections to chapter 7, switchable with --errata:
+
+branch (slip)
     Group C chooses D and E at once
     The choice at the end of group C is [1∩(r∸1)]·D + (1∩r)·E + (1∸r)·F. For a variable, an operation or → (r = 2, 3, 4) both the first and the second coefficient are 1, so π receives D + E. The coefficient of E must be 1 only for an opening parenthesis: 1 ∸ (r÷1), as group A writes it for B.
 
-store
+store (slip)
     Group E′ leaves out the operation code of a store
     As printed, `a → b` is encoded as h·m3 + k, a number with operation code 00, which the machine does not define. Section 4.4 encodes the same formula as 5·m2 + C·m3 + F. One term is added.
 
-link
+link (slip)
     Group I overwrites the link to the enclosing parenthesis
-    When a ( follows an operation, group I files the finished instruction number in the cell of the current parenthesis, which still holds F of the parenthesis around it. Knuth and Trabb Pardo (1976) report this bug without printing their fix; this one is ours. The instruction number is filed in the cell of the new parenthesis instead, where its last three digits still serve as the link, and group G moves it home when the outer parenthesis closes.
+    When a ( follows an operation, group I files the finished instruction number in the cell of the current parenthesis, which still holds F of the parenthesis around it. Knuth and Trabb Pardo (1976) report this bug without printing their fix; this one is ours, and it is not shown to be the smallest (they thought one more statement would do; this changes one and adds two). The instruction number is filed in the cell of the new parenthesis instead, where its last three digits still serve as the link, and group G moves it home when the outer parenthesis closes.
 
-names
+names (interpretation)
     The compiler's variable X is also the X of the code it generates
-    Chapter 6 keeps the running product of a polynomial in the letter X (and the sum in S). Chapter 7 uses X for F(n) and is itself written with polynomials, so the compiler compiled by its own method destroys its X. Its X is renamed Z.
+    Chapter 6 keeps the running product of a polynomial in the letter X (and the sum in S). Chapter 7 uses X for F(n) and is itself written with polynomials, so the compiler compiled by its own method destroys its X. Its X is renamed Z. This rests on reading the compiler's formulas without brackets as chapter 6 polynomials, as Knuth and Trabb Pardo describe Böhm's compiler doing; with every formula bracketed instead, X survives and the other three corrections suffice.
+
+Corrections made in the transcriptions, always applied:
+
+programs/compiler-1951.bohm, group J′ (French p. 43) (slip)
+    Both formulas after π′ → J′ are printed without their arrow; the two arrows are supplied. Sestoft's translation (p. 41) has them.
+
+programs/loader.bohm, group β (French p. 28) (slip)
+    The constant is printed 94999010000, which does not recognise π′ → K; 9490010000 (Sestoft's reading) does, and is used.
+
+programs/euclid-n.bohm, group F (French p. 26) (slip)
+    The group described as F is headed π′ → E, a second E; it is written π′ → F, as the jumps to F and figure 3 require.
+
+programs/tpk.bohm, group V (Knuth and Trabb Pardo, p. 39) (slip)
+    Group V is headed π′ → U; it is written π′ → V.
+
+Where the sources disagree (conflict):
+
+table (6.2) and group G′ (French pp. 38, 43)
+    The table begins a polynomial whose first term is a product with that product; group G′ first writes 0 → S. The reference translation follows G′.
+
+group W (French p. 42)
+    Sestoft's translation (p. 40) goes from group U to A′ and has no group W. The French printing's W is transcribed.
+
+group F′ (French p. 43)
+    The French prints h·m3 + g6 → ?, Sestoft's translation (p. 41) h·m2 + g6 → ?. The French is followed.
+
+Kinds: slip, wrong under any reading of the source; conflict, the sources
+disagree and one is followed; interpretation, our reading of what was meant;
+ours, a consequence of choices made in this reconstruction.
 ```
 
-They are applied by default. `--errata none` runs the text as printed:
+The four are applied by default. `--errata none` runs the text as printed,
+apart from those two arrows:
 
 ```console
 $ bohm compile examples/echo.bohm --via bohm --errata none --emit code
@@ -153,8 +192,8 @@ called `store`.
 
 None of this takes anything from the achievement. The program was written
 for a machine that did not exist, by a man who had no way to try it, and
-four slips in a program of this size is fewer than most people make with a
-computer in front of them.
+three slips, two missing arrows and a clash of names in a program of this
+size is fewer than most people make with a computer in front of them.
 
 ## A program that does not survive
 

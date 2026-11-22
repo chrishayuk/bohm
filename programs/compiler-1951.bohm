@@ -4,8 +4,13 @@
 # printed Bologna, 1954).
 #
 # The formulas are transcribed from pages 39-43 of the French printing and are
-# left exactly as printed, misprints included. Corrections live in src/lib.rs
-# as numbered errata and are applied on request, never here.
+# left as printed, misprints included, with one exception: the two formulas of
+# group J′ are printed without their arrows (j·m2 + h·m3 + g4   ? and B′   π),
+# and the arrows are supplied here, since a formula cannot be read without
+# one (a slip; Sestoft's translation, p. 41, has them). Every other correction
+# lives in src/lib.rs as a named erratum and is applied on request, never here.
+# Spacing, subscripts (m2 for m₂) and the spelling of primes (A' for A′) are
+# conventions of the transcription.
 #
 # Input tape: a program, one number per teletypewriter key (section 4.3).
 # Output tape: the same program as instruction numbers.
@@ -200,7 +205,7 @@ g1 + j·m2 + h·m3 → ?
 g·m2 + g2 → ?
 B' → π
 
-# J′. An instruction number of type g4.
+# J′. An instruction number of type g4. Both arrows are missing in the printing.
 π' → J'
 j·m2 + h·m3 + g4 → ?
 B' → π

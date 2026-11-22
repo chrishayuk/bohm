@@ -6,9 +6,24 @@
 # from the tape and stores them, until the address is 0; the number after
 # that 0 is the address of α.
 #
-# Two things differ from the printed text. Böhm's a, b, c, d, f are written
-# a0, b0, c0, d0, f0, so that loading a program does not disturb its letters.
-# And the loader sits at 940, not 970, to make room for ρ and the constants.
+# Groups α to δ are transcribed from p. 28 of the French printing. They differ
+# from the printed text in these ways:
+#
+#   * Böhm's a, b, c, d, f are written a0, b0, c0, d0, f0, so that loading a
+#     program does not disturb its letters (ours).
+#   * The loader sits at 940, not 970, to make room for ρ and the constants
+#     (ours).
+#   * The groups are headed π' → α and so on. The printing writes π'' there,
+#     and footnote 20 says this is only for clarity (ours: one symbol, as the
+#     tools have no π'').
+#   * a∸b and π'+1 are put in brackets, and so is c + 9490010000, so that every
+#     formula of the loader is a bracketed one and none is a polynomial, which
+#     would work in the cells S and X of the program being loaded (ours).
+#     10^10 is written out as 10000000000.
+#   * The constant in β is printed 94999010000. Added to a group header
+#     0000 05 0999 0000 that gives 5509000000 modulo 10^10, not 0, so no header
+#     would be recognised. 9490010000, as in Sestoft's translation, is used
+#     (a slip).
 
 origin 940
 cells 970

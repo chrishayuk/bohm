@@ -85,6 +85,8 @@ fn loader_recognises_group_headers() {
     let header = u.code()[0];
     assert_eq!(header, 5_0999_0038);
     assert_eq!((header - header % 10_000 + 9_490_010_000) % 10_000_000_000, 0);
+    // The printing has 94999010000, which would not recognise it.
+    assert_ne!((header - header % 10_000 + 94_999_010_000) % 10_000_000_000, 0);
 }
 
 /// Section 5.3: formula (5.31) must give the sequence (5.32).
@@ -258,6 +260,43 @@ fn input_is_read_in_the_order_of_the_instructions() {
     three_ways("π' → A\n(?+(?·?)) → ?\nΩ → π", &[1, 2, 3], &[5]);
     // The right-hand bracket is region 3 and is computed first: 1∸2, 10∸4, 6∸0.
     three_ways("π' → A\n((?∸?)∸(?∸?)) → ?\nΩ → π", &[1, 2, 10, 4], &[6]);
+}
+
+/// Formulas as printed in chapter 7, each with its operations put in
+/// brackets: a formula with an operation in it becomes `(…) → …`.
+fn bracket_every_formula(text: &str) -> String {
+    text.lines()
+        .map(|line| {
+            let code = line.split('#').next().unwrap().trim();
+            match code.split_once('→') {
+                Some((lhs, rhs))
+                    if lhs.chars().any(|c| "+∸·:÷∪∩".contains(c)) || lhs.contains("mod") =>
+                {
+                    format!("({}) → {}", lhs.trim(), rhs.trim())
+                }
+                _ => line.to_string(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+/// The fourth correction, `names`, is needed only because the compiler's
+/// formulas without brackets are compiled as chapter 6 polynomials, which
+/// work in S and X. With every formula bracketed instead, the compiler keeps
+/// its X and still compiles itself with the other three corrections.
+#[test]
+fn names_is_needed_only_for_polynomials() {
+    let text = bracket_every_formula(&bohm::compiler_source(&["branch", "store", "link"]).unwrap());
+    let build = |m| Unit::build(&text, Overrides { temps: Some(m), origin: None }).unwrap();
+    let (a, b) = (build(800), build(850));
+    let chars = a.chars();
+    let s0 = bohm_compile(&a, Engine::Interp, &chars, 850).unwrap();
+    assert_eq!(s0, b.code());
+    let s1 = bohm_compile(&b, Engine::Machine(Some(&s0)), &chars, 800).unwrap();
+    assert_eq!(s1, a.code());
+    let s2 = bohm_compile(&a, Engine::Machine(Some(&s1)), &chars, 850).unwrap();
+    assert_eq!(s2, s0);
 }
 
 struct Rng(u64);

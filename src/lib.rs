@@ -23,6 +23,11 @@ const CELL_M: usize = 14;
 /// A correction to chapter 7 as printed.
 pub struct Erratum {
     pub id: &'static str,
+    /// What kind of correction it is: `slip` (wrong under any reading of the
+    /// source), `conflict` (the sources disagree and we follow one of them),
+    /// `interpretation` (our reading of what was meant) or `ours` (a
+    /// consequence of choices made in this reconstruction).
+    pub kind: &'static str,
     pub title: &'static str,
     pub detail: &'static str,
     edits: &'static [(&'static str, &'static str)],
@@ -31,6 +36,7 @@ pub struct Erratum {
 pub const ERRATA: &[Erratum] = &[
     Erratum {
         id: "branch",
+        kind: "slip",
         title: "Group C chooses D and E at once",
         detail: "The choice at the end of group C is [1∩(r∸1)]·D + (1∩r)·E + (1∸r)·F. For a \
                  variable, an operation or → (r = 2, 3, 4) both the first and the second \
@@ -40,6 +46,7 @@ pub const ERRATA: &[Erratum] = &[
     },
     Erratum {
         id: "store",
+        kind: "slip",
         title: "Group E′ leaves out the operation code of a store",
         detail: "As printed, `a → b` is encoded as h·m3 + k, a number with operation code 00, \
                  which the machine does not define. Section 4.4 encodes the same formula as \
@@ -48,11 +55,14 @@ pub const ERRATA: &[Erratum] = &[
     },
     Erratum {
         id: "link",
+        kind: "slip",
         title: "Group I overwrites the link to the enclosing parenthesis",
         detail: "When a ( follows an operation, group I files the finished instruction number in \
                  the cell of the current parenthesis, which still holds F of the parenthesis \
                  around it. Knuth and Trabb Pardo (1976) report this bug without printing their \
-                 fix; this one is ours. The instruction number is filed in the cell of the new \
+                 fix; this one is ours, and it is not shown to be the smallest (they \
+                 thought one more statement would do; this changes one and adds two). \
+                 The instruction number is filed in the cell of the new \
                  parenthesis instead, where its last three digits still serve as the link, and \
                  group G moves it home when the outer parenthesis closes.",
         edits: &[
@@ -62,12 +72,66 @@ pub const ERRATA: &[Erratum] = &[
     },
     Erratum {
         id: "names",
+        kind: "interpretation",
         title: "The compiler's variable X is also the X of the code it generates",
         detail: "Chapter 6 keeps the running product of a polynomial in the letter X (and the sum \
                  in S). Chapter 7 uses X for F(n) and is itself written with polynomials, so the \
-                 compiler compiled by its own method destroys its X. Its X is renamed Z.",
+                 compiler compiled by its own method destroys its X. Its X is renamed Z. \
+                 This rests on reading the compiler's formulas without brackets as \
+                 chapter 6 polynomials, as Knuth and Trabb Pardo describe Böhm's \
+                 compiler doing; with every formula bracketed instead, X survives and \
+                 the other three corrections suffice.",
         edits: &[],
     },
+];
+
+/// Corrections made in the transcriptions themselves, which `--errata`
+/// cannot switch off because the text would not run or not parse without
+/// them: (kind, where, what).
+pub const TRANSCRIPTION_CORRECTIONS: &[(&str, &str, &str)] = &[
+    (
+        "slip",
+        "programs/compiler-1951.bohm, group J′ (French p. 43)",
+        "Both formulas after π′ → J′ are printed without their arrow; the two arrows are \
+         supplied. Sestoft's translation (p. 41) has them.",
+    ),
+    (
+        "slip",
+        "programs/loader.bohm, group β (French p. 28)",
+        "The constant is printed 94999010000, which does not recognise π′ → K; \
+         9490010000 (Sestoft's reading) does, and is used.",
+    ),
+    (
+        "slip",
+        "programs/euclid-n.bohm, group F (French p. 26)",
+        "The group described as F is headed π′ → E, a second E; it is written π′ → F, \
+         as the jumps to F and figure 3 require.",
+    ),
+    (
+        "slip",
+        "programs/tpk.bohm, group V (Knuth and Trabb Pardo, p. 39)",
+        "Group V is headed π′ → U; it is written π′ → V.",
+    ),
+];
+
+/// Places where the sources say two things, and which one is followed:
+/// (where, what). All of kind `conflict`.
+pub const SOURCE_CONFLICTS: &[(&str, &str)] = &[
+    (
+        "table (6.2) and group G′ (French pp. 38, 43)",
+        "The table begins a polynomial whose first term is a product with that product; \
+         group G′ first writes 0 → S. The reference translation follows G′.",
+    ),
+    (
+        "group W (French p. 42)",
+        "Sestoft's translation (p. 40) goes from group U to A′ and has no group W. The \
+         French printing's W is transcribed.",
+    ),
+    (
+        "group F′ (French p. 43)",
+        "The French prints h·m3 + g6 → ?, Sestoft's translation (p. 41) h·m2 + g6 → ?. \
+         The French is followed.",
+    ),
 ];
 
 /// Chapter 7 with the chosen errata applied. `ids` may hold "all" or "none".

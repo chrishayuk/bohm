@@ -234,9 +234,23 @@ fn real_main() -> Result<(), String> {
             }
         }
         "errata" => {
+            println!("Corrections to chapter 7, switchable with --errata:\n");
             for e in ERRATA {
-                println!("{}\n    {}\n    {}\n", e.id, e.title, e.detail);
+                println!("{} ({})\n    {}\n    {}\n", e.id, e.kind, e.title, e.detail);
             }
+            println!("Corrections made in the transcriptions, always applied:\n");
+            for (kind, place, what) in bohm::TRANSCRIPTION_CORRECTIONS {
+                println!("{} ({})\n    {}\n", place, kind, what);
+            }
+            println!("Where the sources disagree (conflict):\n");
+            for (place, what) in bohm::SOURCE_CONFLICTS {
+                println!("{}\n    {}\n", place, what);
+            }
+            println!(
+                "Kinds: slip, wrong under any reading of the source; conflict, the sources\n\
+                 disagree and one is followed; interpretation, our reading of what was meant;\n\
+                 ours, a consequence of choices made in this reconstruction."
+            );
             Ok(())
         }
         _ => {
