@@ -20,7 +20,6 @@
   textarea, pre, select, button { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: inherit; }
   textarea, pre { width: 100%; margin: 0; padding: 12px; background: transparent; border: 1px solid var(--rule); border-radius: 0; }
   textarea { resize: vertical; tab-size: 2; }
-  #program { height: 340px; }
   #input { height: 64px; }
   pre { height: 484px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
   select, button { padding: 6px 12px; background: var(--bg); border: 1px solid var(--fg); cursor: pointer; }
@@ -29,6 +28,27 @@
   .keys { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 8px; }
   .keys button { padding: 2px 9px; border-color: var(--rule); min-width: 34px; }
   .err { color: var(--err); }
+  /* The editor: a coloured copy of the text lies under a see-through text box. */
+  .editor { position: relative; height: 340px; border: 1px solid var(--rule); }
+  .editor pre, .editor textarea { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 12px; border: 0; white-space: pre; overflow: auto; word-break: normal; tab-size: 2; font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .editor pre { pointer-events: none; overflow: hidden; }
+  .editor textarea { resize: none; background: transparent; color: transparent; caret-color: var(--fg); outline-offset: -1px; }
+  .editor textarea::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+  .t-comment { opacity: .55; font-style: italic; }
+  .t-number { color: color-mix(in srgb, #2f7fb8 70%, currentColor); }
+  .t-function { color: color-mix(in srgb, #c96a14 80%, currentColor); font-weight: 600; }
+  .t-parameter { color: color-mix(in srgb, #a0489a 75%, currentColor); font-weight: 600; }
+  .t-keyword { color: color-mix(in srgb, #b8323a 70%, currentColor); }
+  .t-operator { opacity: .75; }
+  .p-warning { text-decoration: underline wavy #c98a14; text-decoration-skip-ink: none; }
+  .p-error { text-decoration: underline wavy var(--err); text-decoration-skip-ink: none; }
+  #problems { list-style: none; margin: 6px 0 0; padding: 0; max-height: 84px; overflow: auto; font: 12px/1.5 ui-monospace, monospace; }
+  #problems li { cursor: pointer; padding: 1px 0; }
+  #problems li.error { color: var(--err); }
+  #tip { position: fixed; z-index: 10; display: none; max-width: min(460px, 86vw); padding: 8px 12px; background: #fbf9f3; color: #22251f; border: 1px solid #22251f55; box-shadow: 0 6px 24px #0003; font: 13px/1.5 system-ui, sans-serif; }
+  #tip p { margin: 0 0 6px; max-width: none; opacity: 1; }
+  #tip pre, #tip code { font: 12px/1.5 ui-monospace, Menlo, monospace; background: #22251f14; padding: 1px 4px; }
+  #tip pre { height: auto; margin: 0; padding: 6px 8px; border: 0; white-space: pre; overflow: auto; }
   #status { font: 12px ui-monospace, monospace; opacity: .6; }
 </style>
 </head>
@@ -59,7 +79,8 @@
     <div>
       <label for="program">Program</label>
       <div class="keys" id="keys" aria-label="Symbols"></div>
-      <textarea id="program" spellcheck="false" wrap="off"></textarea>
+      <div class="editor"><pre id="paint" aria-hidden="true"></pre><textarea id="program" spellcheck="false" wrap="off" autocapitalize="off" autocomplete="off"></textarea></div>
+      <ul id="problems" aria-live="polite" aria-label="Problems"></ul>
       <label for="input" style="margin-top:12px">Input, read by ?</label>
       <textarea id="input" spellcheck="false"></textarea>
     </div>
@@ -69,6 +90,7 @@
     </div>
   </div>
 </main>
+<div id="tip" role="tooltip"></div>
 <script type="module">
 const $ = (id) => document.getElementById(id);
 const examples = await (await fetch("examples.json")).json();
@@ -90,12 +112,9 @@ const load = (example) => {
   $("input").value = example.input;
   $("output").textContent = "";
   $("status").textContent = example.machineOnly ? "this one only means something on the machine" : "";
+  changed();
 };
 $("examples").onchange = () => load(examples[$("examples").selectedIndex]);
-const wanted = new URLSearchParams(location.search).get("example");
-const start = Math.max(0, examples.findIndex((example) => example.name === wanted));
-$("examples").selectedIndex = start;
-load(examples[start]);
 
 // The symbols of the thesis, for keyboards that lack them.
 for (const key of ["→", "π", "π'", "Ω", "↓", "∸", "·", ":", "÷", "∪", "∩", "mod"]) {
@@ -107,9 +126,168 @@ for (const key of ["→", "π", "π'", "Ω", "↓", "∸", "·", ":", "÷", "∪
     const text = key === "mod" ? " mod " : key;
     box.setRangeText(text, box.selectionStart, box.selectionEnd, "end");
     box.focus();
+    changed();
   };
   $("keys").append(button);
 }
+
+// ---- The editor. Colours, problems and hover help come from the language
+// server, `bohm lsp`, which is a command of the same bohm.wasm and runs in a
+// worker (lsp-worker.js). The text box is see-through; what you read is the
+// coloured copy underneath it.
+const TYPES = ["comment", "string", "number", "variable", "function", "parameter", "operator", "keyword"];
+const wasmUrl = new URL("bohm.wasm", location.href).href;
+let server = null;
+let asked = 0;
+const waiting = new Map();
+function ask(text, requests) {
+  if (!server) {
+    server = new Worker("lsp-worker.js", { type: "module" });
+    server.onmessage = ({ data }) => { waiting.get(data.id)?.(data.error ? null : data); waiting.delete(data.id); };
+    server.onerror = () => { for (const resolve of waiting.values()) resolve(null); waiting.clear(); };
+  }
+  const id = ++asked;
+  return new Promise((resolve) => { waiting.set(id, resolve); server.postMessage({ id, wasmUrl, text, requests }); });
+}
+
+// Draws the text, one element per line, coloured by `tokens` (the server's
+// five numbers per token) and underlined where `problems` lie.
+function paint(text, tokens = [], problems = []) {
+  const lines = text.split("\n");
+  const kind = lines.map((line) => new Array(line.length).fill(""));
+  const mark = lines.map((line) => new Array(line.length).fill(""));
+  let row = 0, col = 0;
+  for (let i = 0; i + 4 < tokens.length; i += 5) {
+    row += tokens[i];
+    col = tokens[i] ? tokens[i + 1] : col + tokens[i + 1];
+    for (let c = col; c < col + tokens[i + 2] && kind[row] && c < kind[row].length; c++) kind[row][c] = TYPES[tokens[i + 3]];
+  }
+  for (const problem of problems) {
+    const { start, end } = problem.range;
+    for (let c = start.character; c < Math.max(end.character, start.character + 1) && mark[start.line] && c < mark[start.line].length; c++) {
+      if (mark[start.line][c] !== "error") mark[start.line][c] = problem.severity === 1 ? "error" : "warning";
+    }
+  }
+  const out = document.createDocumentFragment();
+  lines.forEach((line, n) => {
+    const element = document.createElement("div");
+    for (let from = 0; from < line.length; ) {
+      let to = from + 1;
+      while (to < line.length && kind[n][to] === kind[n][from] && mark[n][to] === mark[n][from]) to++;
+      const span = document.createElement("span");
+      span.textContent = line.slice(from, to);
+      span.className = [kind[n][from] && `t-${kind[n][from]}`, mark[n][from] && `p-${mark[n][from]}`].filter(Boolean).join(" ");
+      element.append(span);
+      from = to;
+    }
+    if (!line.length) element.textContent = "\u200b";
+    out.append(element);
+  });
+  $("paint").replaceChildren(out);
+  $("paint").scrollTop = $("program").scrollTop;
+  $("paint").scrollLeft = $("program").scrollLeft;
+}
+
+let timer = 0;
+async function check() {
+  const text = $("program").value;
+  const answer = await ask(text, [{ method: "textDocument/semanticTokens/full" }]);
+  if (!answer || $("program").value !== text) return;
+  paint(text, answer.results[0]?.data || [], answer.diagnostics);
+  $("problems").replaceChildren(...answer.diagnostics.map((problem) => {
+    const item = document.createElement("li");
+    item.className = problem.severity === 1 ? "error" : "warning";
+    item.textContent = `line ${problem.range.start.line + 1}: ${problem.message}`;
+    item.onclick = () => {
+      const before = text.split("\n").slice(0, problem.range.start.line).reduce((n, line) => n + line.length + 1, 0);
+      $("program").focus();
+      $("program").setSelectionRange(before + problem.range.start.character, before + problem.range.end.character);
+    };
+    return item;
+  }));
+}
+// The text has changed: show it at once, and colour it when the server answers.
+function changed() {
+  hideTip();
+  paint($("program").value);
+  clearTimeout(timer);
+  timer = setTimeout(check, 120);
+}
+$("program").addEventListener("input", (event) => {
+  // Typing -> writes the arrow.
+  const box = $("program");
+  const at = box.selectionStart;
+  if (event.inputType === "insertText" && event.data === ">" && box.value.slice(at - 2, at) === "->") {
+    box.setRangeText("→", at - 2, at, "end");
+  }
+  changed();
+});
+$("program").addEventListener("scroll", () => {
+  $("paint").scrollTop = $("program").scrollTop;
+  $("paint").scrollLeft = $("program").scrollLeft;
+  hideTip();
+});
+
+// Hover help. The pointer is over the text box, so the place it points at is
+// found in the coloured copy, which has the same text in the same place.
+function placeAt(x, y) {
+  const rows = $("paint").children;
+  for (let line = 0; line < rows.length; line++) {
+    const box = rows[line].getBoundingClientRect();
+    if (y < box.top || y >= box.bottom) continue;
+    const range = document.createRange();
+    let character = 0;
+    for (const span of rows[line].children) {
+      const node = span.firstChild;
+      for (let i = 0; i < node.length; i++, character++) {
+        range.setStart(node, i);
+        range.setEnd(node, i + 1);
+        const letter = range.getBoundingClientRect();
+        if (x >= letter.left && x < letter.right) return { line, character };
+      }
+    }
+    return null;
+  }
+  return null;
+}
+function render(markdown) {
+  const tip = $("tip");
+  tip.replaceChildren();
+  for (const block of markdown.split(/\n{2,}/)) {
+    const fence = /^```\w*\n([\s\S]*?)\n?```$/.exec(block.trim());
+    const element = document.createElement(fence ? "pre" : "p");
+    if (fence) element.textContent = fence[1];
+    else for (const piece of block.split(/(`[^`]+`)/)) {
+      if (piece.startsWith("`")) { const code = document.createElement("code"); code.textContent = piece.slice(1, -1); element.append(code); }
+      else element.append(piece);
+    }
+    tip.append(element);
+  }
+}
+let hovering = 0;
+function hideTip() { clearTimeout(hovering); $("tip").style.display = "none"; }
+$("program").addEventListener("mouseleave", hideTip);
+$("program").addEventListener("mousemove", (event) => {
+  hideTip();
+  const { clientX: x, clientY: y } = event;
+  hovering = setTimeout(async () => {
+    const position = placeAt(x, y);
+    if (!position) return;
+    const text = $("program").value;
+    const answer = await ask(text, [{ method: "textDocument/hover", params: { position } }]);
+    const found = answer?.results[0];
+    if (!found || $("program").value !== text) return;
+    render(found.contents.value);
+    const tip = $("tip");
+    tip.style.display = "block";
+    tip.style.left = `${Math.min(x, innerWidth - tip.offsetWidth - 8)}px`;
+    tip.style.top = `${y + 18 + tip.offsetHeight > innerHeight ? y - tip.offsetHeight - 10 : y + 18}px`;
+  }, 250);
+});
+const wanted = new URLSearchParams(location.search).get("example");
+const start = Math.max(0, examples.findIndex((example) => example.name === wanted));
+$("examples").selectedIndex = start;
+load(examples[start]);
 
 let worker = null;
 const finish = (message) => {

@@ -143,6 +143,11 @@ The page can run a program on the machine or as algebra, show its
 instructions, trace it, compare all three readings, run the compiler as
 printed in 1954, and have the compiler compile itself.
 
+Its editor colours the program, underlines problems before you run it, and
+shows what a symbol means and what a formula compiles to when the pointer
+rests on it. All of that comes from `bohm lsp` running in a worker
+(`web/lsp-worker.js`), from the same `bohm.wasm`. Typing `->` writes `→`.
+
 ## Editor support
 
 `editors/vscode/` is a VS Code extension: highlighting, snippets, the
