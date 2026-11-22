@@ -1,0 +1,56 @@
+{
+  "Group": {
+    "prefix": ["group", "pi'"],
+    "body": ["π' → ${1:A}", "$0"],
+    "description": "Begin a group"
+  },
+  "Read": { "prefix": "read", "body": "? → ${1:a}", "description": "Read the next number of input" },
+  "Print": { "prefix": "print", "body": "${1:a} → ?", "description": "Print a number" },
+  "Stop": { "prefix": "stop", "body": "Ω → π", "description": "Stop the program" },
+  "Jump": { "prefix": ["jump", "goto"], "body": "${1:B} → π", "description": "Continue at another group" },
+  "Choice of two": {
+    "prefix": ["if", "choice"],
+    "body": "(1 ∩ ${1:c})·${2:K} + (1 ∸ ${1:c})·${3:L} → π",
+    "description": "Continue at K if c is not 0, otherwise at L"
+  },
+  "Choice or stop": {
+    "prefix": ["ifstop", "while"],
+    "body": "(1 ∩ ${1:c})·${2:K} → π",
+    "description": "Continue at K if c is not 0, otherwise stop"
+  },
+  "Greater than": { "prefix": "gt", "body": "1 ∩ (${1:x} ∸ ${2:y})", "description": "1 when x > y" },
+  "At most": { "prefix": "le", "body": "1 ∸ (${1:x} ∸ ${2:y})", "description": "1 when x ≤ y" },
+  "Equal": { "prefix": "eq", "body": "1 ∸ (${1:x} ÷ ${2:y})", "description": "1 when x = y" },
+  "Not equal": { "prefix": "ne", "body": "1 ∩ (${1:x} ÷ ${2:y})", "description": "1 when x ≠ y" },
+  "Counting loop": {
+    "prefix": ["loop", "for"],
+    "body": [
+      "1 → ${1:i}",
+      "",
+      "π' → ${2:B}              # While ${1:i} <= ${3:n}.",
+      "(1 ∸ (${1:i} ∸ ${3:n}))·${4:C} → π",
+      "",
+      "π' → ${4:C}",
+      "$0",
+      "${1:i} + 1 → ${1:i}",
+      "${2:B} → π"
+    ],
+    "description": "Count i from 1 to n"
+  },
+  "Subroutine call": {
+    "prefix": "call",
+    "body": ["${1:B} → z               # come back at ${1:B}", "${2:P} → π", "", "π' → ${1:B}", "$0"],
+    "description": "Call the subroutine P, which returns to the group named in z"
+  },
+  "Push": { "prefix": "push", "body": ["${1:a} → ↓p", "p + 1 → p"], "description": "Put a on the stack at p" },
+  "Pop": { "prefix": "pop", "body": ["p ∸ 1 → p", "↓p → ${1:a}"], "description": "Take the last number off the stack at p" },
+  "Becomes": { "prefix": "to", "body": "→", "description": "→" },
+  "Indirect": { "prefix": "down", "body": "↓", "description": "↓" },
+  "Minus": { "prefix": "minus", "body": "∸", "description": "∸ difference, or 0" },
+  "Times": { "prefix": "times", "body": "·", "description": "· product" },
+  "Absolute difference": { "prefix": "diff", "body": "÷", "description": "÷ absolute difference" },
+  "Greater": { "prefix": "max", "body": "∪", "description": "∪ the greater" },
+  "Smaller": { "prefix": "min", "body": "∩", "description": "∩ the smaller" },
+  "Omega": { "prefix": "omega", "body": "Ω", "description": "Ω" },
+  "Pi": { "prefix": "pi", "body": "π", "description": "π" }
+}

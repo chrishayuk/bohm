@@ -25,6 +25,14 @@ usage:
         Have Böhm's compiler compile itself.
   bohm errata
         List the corrections to chapter 7.
+  bohm check FILE
+        List what is wrong with a program, and what compiles but is probably
+        not what was meant, one per line as FILE:LINE:COLUMN: KIND: MESSAGE.
+  bohm format FILE
+        Print the program with every symbol written as the thesis prints it.
+  bohm lsp
+        Serve editors, speaking the Language Server Protocol on standard
+        input and output.
 
   --errata takes `all` (the default), `none`, or names from `bohm errata`.
   --compiler machine|algebra chooses how Böhm's compiler itself is run: as
@@ -85,6 +93,10 @@ fn main() -> ExitCode {
 
 fn real_main() -> Result<(), String> {
     let mut args = Args { rest: std::env::args().skip(1).collect() };
+    if args.rest.first().map(String::as_str) == Some("lsp") {
+        let stdin = std::io::stdin();
+        return bohm::lsp::serve(&mut stdin.lock(), &mut std::io::stdout());
+    }
     let errata_arg = args.opt("--errata").unwrap_or("all".into());
     let errata: Vec<&str> = errata_arg.split(',').collect();
     // FILE may be `-`: standard input is then the program, a line of four
@@ -104,7 +116,7 @@ fn real_main() -> Result<(), String> {
         (Some(list), _) => numbers(Some(list))?,
         (None, Some((_, text))) => numbers(Some(text.clone()))?,
         // With no --input, numbers come from standard input when it is a file or a pipe.
-        (None, None) if !std::io::stdin().is_terminal() => {
+        (None, None) if !std::io::stdin().is_terminal() && !["check", "format"].contains(&args.rest.first().map(String::as_str).unwrap_or("")) => {
             let mut text = String::new();
             std::io::stdin().read_to_string(&mut text).map_err(|e| e.to_string())?;
             numbers(Some(text))?
@@ -199,6 +211,28 @@ fn real_main() -> Result<(), String> {
             verify(&unit, &input, &errata, algebra)
         }
         "selfhost" => selfhost(&errata),
+        "check" | "format" => {
+            let (name, text) = match &piped {
+                Some((program, _)) => ("-".to_string(), program.clone()),
+                None => {
+                    let path = args.rest.get(1).ok_or("which file?")?;
+                    (path.clone(), std::fs::read_to_string(path).map_err(|e| format!("{}: {}", path, e))?)
+                }
+            };
+            if cmd == "format" {
+                print!("{}", bohm::check::symbolise(&text));
+                return Ok(());
+            }
+            let problems = bohm::check::check(&text);
+            for d in &problems {
+                let kind = if d.error { "error" } else { "warning" };
+                println!("{}:{}:{}: {}: {}", name, d.line, d.start + 1, kind, d.message);
+            }
+            match problems.iter().filter(|d| d.error).count() {
+                0 => Ok(()),
+                n => Err(format!("{} error{}", n, if n == 1 { "" } else { "s" })),
+            }
+        }
         "errata" => {
             for e in ERRATA {
                 println!("{}\n    {}\n    {}\n", e.id, e.title, e.detail);

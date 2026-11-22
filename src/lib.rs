@@ -1,8 +1,11 @@
 //! Corrado Böhm's 1951 language: machine, loader, compiler, and the tools to
 //! check each against the others.
 
+pub mod check;
 pub mod compile;
 pub mod interp;
+pub mod json;
+pub mod lsp;
 pub mod machine;
 pub mod syntax;
 

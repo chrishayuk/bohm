@@ -2,6 +2,7 @@
 // host, and compares the output with the .out file.   node web/test.mjs
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { run, stdinFor } from "./wasi.js";
+import { ask } from "./lsp.js";
 
 const root = new URL("..", import.meta.url).pathname;
 const module = new WebAssembly.Module(readFileSync(root + "web/bohm.wasm"));
@@ -56,6 +57,18 @@ const printed = bohm(["compile", "-", "--via", "bohm", "--errata", "none"], "π'
 if (!printed.out.includes("(not an instruction)")) fail("the compiler as printed");
 const self = bohm(["selfhost"]);
 if (self.code !== 0 || !self.out.endsWith("the compiler reproduces itself\n")) fail("selfhost");
+
+// The language server, as the page calls it.
+const tpk = listed.find((e) => e.name === "knuth-tpk").program;
+const answer = ask(module, tpk, [
+  { method: "textDocument/semanticTokens/full" },
+  { method: "textDocument/hover", params: { position: { line: tpk.split("\n").findIndex((l) => l.includes("→ π")), character: 0 } } },
+]);
+if (answer.diagnostics.length !== 5 || !answer.diagnostics[0].message.startsWith("X is where")) fail("language server: problems");
+if (!(answer.results[0].data.length > 100) || answer.results[0].data.length % 5) fail("language server: colours");
+if (!answer.results[1].contents.value.includes("On the machine:") || !answer.results[1].range) fail("language server: hover");
+const clean = ask(module, "π' → A\n? → a\na → ?\n", [{ method: "textDocument/completion", params: { position: { line: 1, character: 0 } } }]);
+if (clean.diagnostics.length !== 0 || !clean.results[0].some((item) => item.label === "→")) fail("language server: completion");
 
 console.log(`${checked} examples checked through WebAssembly, ${failed} failed`);
 process.exit(failed ? 1 : 0);

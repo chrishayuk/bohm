@@ -46,6 +46,38 @@ M mod m → r
 ASCII spellings (`->`, `pi'`, `Omega`, `@i`, `-`, `*`, `/`, `~`, `max`,
 `min`) are listed at the top of `src/syntax.rs`.
 
+## Install
+
+You need [Rust](https://rustup.rs):
+
+```
+cargo install --git https://github.com/chrishayuk/bohm
+```
+
+That puts `bohm` in `~/.cargo/bin`. Then:
+
+```
+echo "π' → A
+6·7 → ?" > answer.bohm
+bohm run answer.bohm
+```
+
+For Visual Studio Code, download `bohm-language-0.1.0.vsix` from the
+[latest release](https://github.com/chrishayuk/bohm/releases/latest) and
+install it:
+
+```
+code --install-extension bohm-language-0.1.0.vsix
+```
+
+Open any `.bohm` file and you get highlighting, hover help, problems as you
+type, and run commands. The extension carries its own copy of the program,
+so it works without the `cargo install` above. For Neovim, Helix and other
+editors see [`editors/README.md`](editors/README.md).
+
+Or try the language with nothing installed, in the
+[playground](https://chrishayuk.com/demos/bohm).
+
 ## Using it
 
 ```
@@ -110,6 +142,37 @@ python3 -m http.server -d web 8000  # then open http://localhost:8000
 The page can run a program on the machine or as algebra, show its
 instructions, trace it, compare all three readings, run the compiler as
 printed in 1954, and have the compiler compile itself.
+
+## Editor support
+
+`editors/vscode/` is a VS Code extension: highlighting, snippets, the
+symbols a keyboard lacks, problems as you type, the instruction numbers
+behind a formula when you rest the pointer on it, go to a group's
+definition, rename, and commands to run the file. It carries the program
+compiled to WebAssembly, so it needs nothing installed.
+
+The extension is thin. The work is done by three commands of the same
+program, which any editor can use ([`editors/README.md`](editors/README.md)):
+
+```
+bohm check FILE     # problems, one per line: FILE:LINE:COLUMN: KIND: MESSAGE
+bohm format FILE    # the program with -> pi Omega - * written as → π Ω ∸ ·
+bohm lsp            # a language server on standard input and output
+```
+
+`check` reports more than syntax. It warns when a program uses `S` or `X`
+beside a formula without brackets, which is what stops Knuth and Trabb
+Pardo's TPK program on the machine, and what the fourth correction to
+Böhm's own compiler is about:
+
+```
+$ bohm check programs/tpk.bohm | wc -l
+5
+$ bohm check programs/compiler-1951.bohm | wc -l
+11
+```
+
+`web/lsp-worker.js` runs the same server in a web page.
 
 ## Three readings of a program
 

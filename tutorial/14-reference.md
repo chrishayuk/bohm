@@ -115,5 +115,8 @@ The program starts at the first group in the file.
 | `bohm compile FILE --emit code` | show the instruction numbers |
 | `bohm selfhost` | have Böhm's compiler compile itself |
 | `bohm errata` | list the corrections to the 1954 printing |
+| `bohm check FILE` | list what is wrong with a program, and what will not work on the machine |
+| `bohm format FILE` | print the program with `->`, `pi`, `-` and the rest written as symbols |
+| `bohm lsp` | serve an editor (see `editors/vscode/`) |
 
 Input is given with `--input 3,4,5` or on standard input.

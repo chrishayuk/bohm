@@ -1,0 +1,154 @@
+{
+  "name": "bohm-language",
+  "displayName": "Böhm (1951)",
+  "description": "Syntax highlighting, a language server and run commands for the language of Corrado Böhm's 1951 dissertation.",
+  "version": "0.1.0",
+  "publisher": "chrishayuk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chrishayuk/bohm"
+  },
+  "engines": {
+    "vscode": "^1.82.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Formatters",
+    "Linters"
+  ],
+  "keywords": [
+    "bohm",
+    "böhm",
+    "1951",
+    "compiler",
+    "history"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "languages": [
+      {
+        "id": "bohm",
+        "aliases": [
+          "Böhm",
+          "bohm"
+        ],
+        "extensions": [
+          ".bohm"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "bohm",
+        "scopeName": "source.bohm",
+        "path": "./syntaxes/bohm.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "bohm",
+        "path": "./snippets/bohm.json"
+      }
+    ],
+    "configurationDefaults": {
+      "[bohm]": {
+        "editor.formatOnSave": true,
+        "editor.wordBasedSuggestions": "off",
+        "editor.insertSpaces": true,
+        "editor.semanticHighlighting.enabled": true
+      }
+    },
+    "configuration": {
+      "title": "Böhm",
+      "properties": {
+        "bohm.path": {
+          "type": "string",
+          "default": "",
+          "description": "Path to a bohm program to use for the language server and for running programs. Leave empty to use the one built into the extension."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "bohm.run",
+        "title": "Run on the Machine",
+        "category": "Böhm",
+        "icon": "$(play)"
+      },
+      {
+        "command": "bohm.runAlgebra",
+        "title": "Run as Algebra",
+        "category": "Böhm"
+      },
+      {
+        "command": "bohm.verify",
+        "title": "Run All Three Ways and Compare",
+        "category": "Böhm"
+      },
+      {
+        "command": "bohm.instructions",
+        "title": "Show the Instructions",
+        "category": "Böhm"
+      },
+      {
+        "command": "bohm.restart",
+        "title": "Restart Language Server",
+        "category": "Böhm"
+      }
+    ],
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "bohm.run",
+          "when": "resourceLangId == bohm"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "bohm.run",
+          "when": "editorLangId == bohm"
+        },
+        {
+          "command": "bohm.runAlgebra",
+          "when": "editorLangId == bohm"
+        },
+        {
+          "command": "bohm.verify",
+          "when": "editorLangId == bohm"
+        },
+        {
+          "command": "bohm.instructions",
+          "when": "editorLangId == bohm"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "bohm.run",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorTextFocus && editorLangId == bohm"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test/grammar.test.js && node test/server.test.js",
+    "test:vscode": "node test/run-vscode.js",
+    "package": "node build.mjs && vsce package --no-dependencies --skip-license"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^3.2.1",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.1.0",
+    "esbuild": "^0.25.0"
+  },
+  "private": true
+}

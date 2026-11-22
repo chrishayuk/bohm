@@ -1,0 +1,60 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Böhm",
+  "scopeName": "source.bohm",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#directive" },
+    { "include": "#header" },
+    { "include": "#jump" },
+    { "include": "#expression" }
+  ],
+  "repository": {
+    "comment": { "name": "comment.line.number-sign.bohm", "match": "#.*$" },
+    "directive": {
+      "match": "^\\s*(?:(const)\\s+(\\S+)\\s*(=)\\s*([0-9]+)|(origin|temps|cells)\\s+([0-9]+))",
+      "captures": {
+        "1": { "name": "keyword.other.directive.bohm" },
+        "2": { "name": "variable.other.constant.bohm" },
+        "3": { "name": "keyword.operator.assignment.bohm" },
+        "4": { "name": "constant.numeric.bohm" },
+        "5": { "name": "keyword.other.directive.bohm" },
+        "6": { "name": "constant.numeric.bohm" }
+      }
+    },
+    "header": {
+      "comment": "π' → K names the group that begins here",
+      "match": "^\\s*((?:π|pi)['′])\\s*(→|->)\\s*([A-Za-zα-ωΑ-Ω][0-9]*['′]*)",
+      "captures": {
+        "1": { "name": "storage.type.group.bohm" },
+        "2": { "name": "keyword.operator.assignment.bohm" },
+        "3": { "name": "entity.name.function.group.bohm" }
+      }
+    },
+    "jump": {
+      "comment": "… → π continues somewhere else",
+      "match": "(→|->)\\s*(π|pi)(?![A-Za-z0-9'′])",
+      "captures": {
+        "1": { "name": "keyword.control.jump.bohm" },
+        "2": { "name": "keyword.control.jump.bohm" }
+      }
+    },
+    "expression": {
+      "patterns": [
+        { "name": "keyword.operator.assignment.bohm", "match": "→|->" },
+        { "name": "keyword.operator.indirection.bohm", "match": "↓|@" },
+        { "name": "keyword.operator.word.bohm", "match": "(?<![A-Za-z])(?:mod|max|min)(?![A-Za-z])" },
+        { "name": "keyword.operator.arithmetic.bohm", "match": "[+·*∸−\\-:/÷~∪∩]" },
+        { "name": "variable.language.pi-prime.bohm", "match": "(?<![A-Za-z])(?:π|pi)['′]" },
+        { "name": "variable.language.pi.bohm", "match": "π|(?<![A-Za-z])pi(?![A-Za-z])" },
+        { "name": "constant.language.omega.bohm", "match": "Ω|(?<![A-Za-z])Omega(?![A-Za-z])" },
+        { "name": "support.function.io.bohm", "match": "\\?" },
+        { "name": "constant.numeric.bohm", "match": "[0-9]+" },
+        { "name": "invalid.deprecated.reserved.bohm", "match": "(?<![A-Za-z])[SX](?![A-Za-z0-9'′])" },
+        { "name": "entity.name.function.group.bohm", "match": "(?<![A-Za-z])[A-Z][0-9]*['′]*(?![A-Za-z])" },
+        { "name": "variable.other.bohm", "match": "(?<![A-Za-z])[a-zα-ω][0-9]*['′]*(?![A-Za-z])" },
+        { "name": "punctuation.section.brackets.bohm", "match": "[()\\[\\]{}]" }
+      ]
+    }
+  }
+}
