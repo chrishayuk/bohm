@@ -105,8 +105,10 @@ with its expected output and, where it reads numbers, a `.in` file:
 cargo run -- run examples/hanoi.bohm < examples/hanoi.in
 ```
 
-`cargo test` runs every example twice, on the machine and as algebra, and
-compares both with the `.out` file.
+`cargo test` runs every example on the machine and, except
+`self-modifying.bohm` (marked `# machine only`: an instruction it builds
+as a number has no meaning as algebra), as algebra too, and compares each
+run with the `.out` file.
 
 `programs/` holds the texts from the literature: Böhm's compiler and
 loader, his two Euclid programs, and Knuth and Trabb Pardo's TPK.
@@ -124,7 +126,7 @@ python3 tutorial/check_tutorial.py
 
 runs them all and compares.
 
-`tutorial/build_dataset.py` writes `tutorial/dataset/bohm.jsonl`, 79
+`tutorial/build_dataset.py` writes `tutorial/dataset/bohm.jsonl`, 80
 questions and answers about the language in chat format. Every program in
 an answer is run, and the output shown is what it printed.
 
@@ -192,67 +194,137 @@ that split.
 | Böhm's compiler | chapter 7, transcribed, running as instruction numbers on the machine | `programs/compiler-1951.bohm` |
 
 The reference translator is not a port of chapter 7. Agreement between the
-two, number for number, is the test.
+two, number for number, is the test: on the dissertation's programs, on
+random formulas, and on the compiler's own text.
+
+The dissertation does not say in what order a formula reads its operands,
+which matters only when it reads `?` more than once. All three readings use
+the order of the machine's instructions: a polynomial left to right, a
+bracketed formula in the order of (5.32), the last bracket opened first.
+That rule is ours.
 
 ## What running it found
 
-Chapter 7 is transcribed from the French printing and kept as printed. It
-does not work as printed. `bohm errata` lists four corrections, applied by
-default and switchable with `--errata`; the test suite shows that
-self-compilation fails with any one of them left out.
+Each correction the repository makes is labelled with its kind:
 
-| erratum | problem | known before? |
-|---|---|---|
-| `branch` | Group C's choice gives π the sum D + E for every symbol that is not a parenthesis. | not that we found |
-| `store` | Group E′ encodes `a → b` without the operation code 05. | not that we found |
-| `link` | Group I overwrites the link to the enclosing parenthesis when `(` follows an operation. | Knuth and Trabb Pardo (1976) report it, without printing a fix; the fix here is ours |
-| `names` | The compiler keeps F(n) in X, and chapter 6 computes every polynomial in X and S. The compiler compiled by its own method destroys its own X. | Section 6.2 names the two letters, and Sestoft's appendix A.1 notes that S, V, X and Y are spoken for. Neither says the compiler's X and the polynomial X collide |
+* **slip**: wrong under any reading of the source;
+* **conflict**: the sources say two things, and one is followed;
+* **interpretation**: our reading of what was meant;
+* **ours**: a consequence of choices made in this reconstruction.
 
-Two more observations, left uncorrected:
+`bohm errata` lists them with the same labels.
+
+### Chapter 7
+
+Chapter 7 is transcribed from the French printing and kept as printed,
+with one exception: group J′ (p. 43) prints its two formulas without
+arrows, and the transcription supplies them (slip; Sestoft's translation
+has them). It does not work as printed. `bohm errata` lists four
+corrections, applied by default and switchable with `--errata`. With any
+one of them left out, the compiler cannot compile itself, given that its
+formulas without brackets are compiled as chapter 6 polynomials.
+
+| erratum | kind | problem | known before? |
+|---|---|---|---|
+| `branch` | slip | Group C's choice gives π the sum D + E for every symbol that is not a parenthesis. | not that we found |
+| `store` | slip | Group E′ encodes `a → b` without the operation code 05. | not that we found |
+| `link` | slip | Group I overwrites the link to the enclosing parenthesis when `(` follows an operation. | Knuth and Trabb Pardo (1976) report it, without printing a fix. The fix here is ours and is not shown to be the smallest: they thought one more statement would do, and this one changes one statement and adds two |
+| `names` | interpretation | The compiler keeps F(n) in X, and chapter 6 computes every polynomial in X and S. The compiler compiled by its own method destroys its own X. | Section 6.2 names the two letters, and Sestoft's appendix A.1 notes that S, V, X and Y are spoken for. Neither says the compiler's X and the polynomial X collide |
+
+`names` is an interpretation because it depends on how the compiler's own
+formulas are compiled. Read as chapter 6 polynomials, as Knuth and Trabb
+Pardo describe Böhm's compiler reading a formula that does not begin with a
+bracket, they clash with X. Put every one of them in brackets instead and
+the compiler compiles itself with the other three corrections alone; a test
+(`names_is_needed_only_for_polynomials`) checks this. Renaming X is the
+smaller change to the text, so it is the one made.
+
+"Not that we found" means no earlier report in the sources listed below,
+or in the literature search made for the independent review
+([`docs/independent-review.md`](docs/independent-review.md)). It is not a
+proof that nobody saw these before. Sestoft says he implemented the
+compiler; his translation does not say which corrections he needed.
+
+### Other transcriptions
+
+* `programs/loader.bohm`: group β prints the constant 94999010000, which
+  recognises no group header; 9490010000, as in Sestoft's translation, is
+  used (slip). The groups are headed `π′` where the printing has `π″`, which
+  footnote 20 says is only for clarity; three formulas are put in brackets
+  so that the loader computes no polynomial; its letters are renamed and it
+  is moved from 970 to 940 (all ours). The file lists each change.
+* `programs/euclid-n.bohm`: the group described as F is headed `π′ → E` on
+  p. 26; it is written `π′ → F` (slip). Group E falls through into F, as
+  printed.
+* `programs/tpk.bohm`: Knuth and Trabb Pardo head group V with `π′ → U` on
+  their p. 39; it is written `π′ → V` (slip).
+
+### Where the sources disagree
+
+* Table (6.2) begins a polynomial whose first term is a product with the
+  product itself; group G′ first writes `0 → S`. The reference translation
+  follows G′ (conflict).
+* Sestoft's translation omits group W of chapter 7 and gives group F′ as
+  `h·m2 + g6 → ?`. The French printing has W and `h·m3 + g6 → ?`, and is
+  followed (conflict).
+
+### Left uncorrected
 
 * The syntax checks at the end of groups A′ and C′ multiply a condition by Ω,
   which holds 0, so they never stop the machine. `a mod b → c` is accepted
-  and compiled although section 6.12 excludes it.
-* Knuth and Trabb Pardo's TPK program in Böhm's language (`programs/tpk.bohm`,
-  with one misprinted label corrected) is correct as algebra, but it names a
-  group S and a variable X. Compiled by
-  Böhm's method it stops at once with no output. `programs/tpk-renamed.bohm`
-  changes the two names and runs.
+  and compiled although section 6.12 excludes it. Knuth and Trabb Pardo
+  remark that the syntax check "was not complete".
+* Knuth and Trabb Pardo's TPK program in Böhm's language (`programs/tpk.bohm`)
+  is correct as algebra, but it names a group S and a variable X. Compiled by
+  Böhm's method it stops at once with no output.
+  `programs/tpk-renamed.bohm` changes the two names and runs (ours: putting
+  its formulas in brackets would also do).
 
 A compiler cannot be compiled with its own base constant m: it keeps its
 parenthesis stack in the cells above m, and the code it writes keeps
-intermediate results in the same cells. So self-compilation alternates two
-bases, and the fixed point is a cycle of length two that differs only in
-those addresses.
+intermediate results in the same cells. So self-compilation here alternates
+two bases, and the fixed point is a cycle of length two that differs only in
+those addresses. That is a property of this arrangement of memory (ours),
+not a claim about the only one possible.
 
 ## What is not in the thesis
 
-* **Constants.** The language has no way to load a number. Following Peter
-  Sestoft's appendix, a small group ρ in front of the loader reads
-  (address, number) pairs from the tape.
-* **The decision table as a group.** Section 5.7 says cells t..t+24 hold the
-  25 instructions of table (5.61). They are written here as a group named t.
-* **Names beyond 52 letters.** Chapter 7 needs primed groups and named
-  constants, which the keyboard of section 4.3 cannot type. They get
+Each is labelled with its kind.
+
+* **Constants** (ours). Section 2.6 writes a number as the address of a
+  cell that holds it, but the thesis gives no way of putting the numbers in
+  those cells before a program runs. Following Peter Sestoft's appendix, a
+  small group ρ in front of the loader reads (address, number) pairs from
+  the tape.
+* **The decision table as a group** (ours). Section 5.7 says cells
+  t..t+24 hold the 25 instructions of table (5.61). They are written here
+  as a group named t.
+* **Names beyond 52 letters** (ours). Chapter 7 needs primed groups and
+  named constants, which the keyboard of section 4.3 cannot type. They get
   addresses from a `cells` directive, as section 2.5 allows; the compiler
   itself never looks at the range of a variable's number.
-* **Bracketing.** The thesis writes formulas its compiler does not accept
-  (footnote 18). The tools bracket every operation of such a formula before
+* **Bracketing** (interpretation). The thesis writes formulas its compiler
+  does not accept (footnote 18). The tools bracket every operation of such a formula before
   compiling; `bohm compile --emit normal` shows the result.
-* **The loader's position and variable names**, noted in
+* **The loader's position, variable names and brackets** (ours), noted in
   `programs/loader.bohm`.
-* **The values of g2..g6.** Section 6.3 gives their pattern and the value of
-  g1 only.
-* **Undefined behaviour.** Division by zero, an exhausted tape, an unknown
-  operation code and π ≥ 1000 stop the simulator with a message.
+* **The values of g2..g6** (interpretation). Section 6.3 gives their
+  pattern and the value of g1 only; the others are written out from the
+  pattern.
+* **The order in which a formula reads `?`** (ours), described above.
+* **Undefined behaviour** (ours). Division by zero, an exhausted tape, an
+  unknown operation code and π ≥ 1000 stop the simulator with a message.
 
 ## Earlier work
 
 Peter Sestoft's 2016 English translation says he implemented the machine,
 loader and compiler in Java. The code does not appear on his page, and the
 translation does not say which corrections it needed. This project was
-written without it. The translation omits group W of chapter 7, which the
-French printing has.
+written without it.
+
+The repository was reviewed by a second model, OpenAI's Codex, in November
+2026. What it found and what was done about each finding is in
+[`docs/independent-review.md`](docs/independent-review.md).
 
 ## Sources
 

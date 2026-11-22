@@ -110,8 +110,9 @@ Böhm made this very mistake in his own compiler. One of its groups ends
 [1 ∩ (r ∸ 1)]·D + (1 ∩ r)·E + (1 ∸ r)·F → π
 ```
 
-and for r = 2, 3 or 4 both of the first two multipliers are 1. Nobody
-noticed for as long as the program existed only on paper.
+and for r = 2, 3 or 4 both of the first two multipliers are 1. We have
+not found the slip reported in print. Peter Sestoft ran the compiler in
+2016, but his translation does not say which corrections he needed.
 
 ## And, or, not
 

@@ -215,6 +215,15 @@ qa("What is the order of operations in Böhm's language?",
    "put in brackets. `(`, `[` and `{` are interchangeable.\n\n"
    + prog("π' → A\n2 + 3·4 → ?\n(2 + 3)·4 → ?\n20:2:5 → ?\n(17 mod 5) + 1 → ?\nΩ → π"))
 
+qa("In what order does a formula in Böhm's language read its input?",
+   "The dissertation does not say; it matters only when one formula reads `?` "
+   "more than once. This implementation reads in the order of the instructions "
+   "the formula is compiled to, both on the machine and as algebra. A formula "
+   "without brackets reads from left to right. A bracketed formula computes the "
+   "bracket opened last first, so its inner brackets read before the outer "
+   "ones.\n\n"
+   + prog("π' → A\n?+?·? → ?\n(?+(?·?)) → ?\nΩ → π", "1 2 3 4 5 6"))
+
 qa("How do I write a comment in Böhm's language?",
    "The dissertation has none; Böhm printed explanations beside the formulas. In "
    "this implementation `#` begins a comment that runs to the end of the line.\n\n"
@@ -263,13 +272,16 @@ qa("How did Böhm's compiler work?",
    "for the innermost parentheses first.")
 
 qa("Was Böhm's compiler correct as printed?",
-   "Not as printed in 1954. Run on a simulation of his machine, it needs four "
-   "corrections. Group C sends `π` to the sum of two groups for most symbols. "
-   "Group E′ leaves the operation code out of a plain store. Group I overwrites "
-   "the link to the enclosing parenthesis, a bug Knuth and Trabb Pardo reported "
-   "in 1976. And the compiler uses the variable X, which the code generated for "
-   "its own formulas also uses. With all four corrected it compiles its own "
-   "text, and the result compiles that text again to the same numbers.")
+   "Not as printed in 1954. Run on a simulation of his machine, this "
+   "implementation makes four corrections, and two arrows missing from group J′ "
+   "are supplied. Three corrections are slips: group C sends `π` to the sum of "
+   "two groups for most symbols, group E′ leaves the operation code out of a "
+   "plain store, and group I overwrites the link to the enclosing parenthesis, "
+   "a bug Knuth and Trabb Pardo reported in 1976. The fourth is a clash of "
+   "names: the compiler uses the variable X, which the code generated for its "
+   "own formulas also uses when they are compiled as polynomials. Bracketing "
+   "every formula would avoid it instead. With all four corrected it compiles "
+   "its own text, and the result compiles that text again to the same numbers.")
 
 qa("Who was Corrado Böhm?",
    "An Italian computer scientist (1923–2017). He wrote his dissertation at ETH "

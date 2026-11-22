@@ -95,8 +95,31 @@ to cells that have no letter.
 
 ## Which shape to use
 
-For a program's meaning it makes no difference, and you can let the tools
-choose. If you care how many instructions the machine executes:
+For a program's meaning it makes almost no difference, and you can let the
+tools choose. There are two exceptions. A polynomial works in `S` and `X`,
+as above. And a formula that reads `?` more than once reads the tape in the
+order of its instructions: a polynomial from left to right, a bracketed
+formula innermost bracket first, the last bracket opened before the ones
+opened earlier. The dissertation does not say what order it means; the
+tools follow the machine, as algebra too.
+
+```bohm
+π' → A
+?+?·? → ?             # 1 + 2·3
+(?+(?·?)) → ?         # the multiplication first: 4·5, then 6 + 20
+Ω → π
+```
+
+```input
+1 2 3 4 5 6
+```
+
+```output
+7
+26
+```
+
+If you care how many instructions the machine executes:
 
 | Formula | Instructions |
 |---------|--------------|

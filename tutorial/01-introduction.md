@@ -3,8 +3,10 @@
 In 1951 Corrado Böhm, a doctoral student at ETH Zürich, wrote a dissertation
 that contained three things: a design for a computer, a language for writing
 its programs as formulas, and a program, written in that language, that
-turned formulas into machine instructions. It was the first description of a
-compiler written in its own language. The computer was never built.
+turned formulas into machine instructions. Knuth and Trabb Pardo, surveying
+the early languages in 1976, found it "especially remarkable because he not
+only described a complete compiler, he also defined that compiler in its own
+language". The computer was never built.
 
 This tutorial teaches the language. It needs no knowledge of the
 dissertation; chapters 12 and 13 go back to it and to the machine
