@@ -149,6 +149,20 @@ fn euclid_for_two_numbers() {
     three_ways(&program("euclid.bohm"), &[17, 5], &[1]);
 }
 
+/// Group E ends without a jump, as printed on p. 26, and falls through into
+/// the group after it, whose header the printing gives as a second E.
+#[test]
+fn euclid_for_n_numbers_group_e_as_printed() {
+    let text = program("euclid-n.bohm");
+    let lines: Vec<&str> = text
+        .lines()
+        .map(|l| l.split('#').next().unwrap().trim())
+        .filter(|l| !l.is_empty())
+        .collect();
+    let e = lines.iter().position(|l| *l == "π' → E").unwrap();
+    assert_eq!(lines[e..e + 4], ["π' → E", "100 → i", "101 → k", "π' → F"]);
+}
+
 #[test]
 fn euclid_for_n_numbers() {
     three_ways(&program("euclid-n.bohm"), &[4, 1071, 462, 84, 147], &[21]);
