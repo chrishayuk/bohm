@@ -232,6 +232,20 @@ fn the_name_clash_only_shows_on_the_machine() {
     assert!(bohm_compile(&c, Engine::Machine(None), &u.chars(), u.m()).is_err());
 }
 
+/// A formula that reads `?` more than once reads it in the order of the
+/// instructions written for it, in every reading: a polynomial left to right,
+/// a bracketed formula in the order of (5.32), inner brackets first. The
+/// review of 22 November 2026 found the algebraic reading printing 7 here
+/// while the machine printed 5.
+#[test]
+fn input_is_read_in_the_order_of_the_instructions() {
+    three_ways("π' → A\n?+?·? → ?\nΩ → π", &[1, 2, 3], &[7]);
+    // The multiplication is region 2 and is computed first: 1·2, then 3 + 2.
+    three_ways("π' → A\n(?+(?·?)) → ?\nΩ → π", &[1, 2, 3], &[5]);
+    // The right-hand bracket is region 3 and is computed first: 1∸2, 10∸4, 6∸0.
+    three_ways("π' → A\n((?∸?)∸(?∸?)) → ?\nΩ → π", &[1, 2, 10, 4], &[6]);
+}
+
 struct Rng(u64);
 
 impl Rng {
@@ -299,10 +313,11 @@ fn random_formulas_translate_alike() {
 }
 
 /// A formula means the same read as algebra and run as the instruction
-/// numbers Böhm's compiler writes for it, overflow and division by zero included.
+/// numbers Böhm's compiler writes for it, overflow, division by zero and
+/// formulas that read `?` more than once included.
 #[test]
 fn random_formulas_mean_the_same() {
-    let atoms = ["a", "b", "c", "d", "e", "f", "2", "3", "100000000"];
+    let atoms = ["a", "b", "c", "d", "e", "f", "2", "3", "100000000", "?"];
     let mut r = Rng(1954);
     let mut faults = 0;
     for round in 0..150 {
@@ -310,7 +325,7 @@ fn random_formulas_mean_the_same() {
             "temps 100\nπ' → A\n? → a\n? → b\n? → c\n? → d\n? → e\n? → f\n{} → z\nz → ?\nΩ → π\n",
             formula(&mut r, &atoms)
         );
-        let input: Vec<u64> = (0..6)
+        let input: Vec<u64> = (0..40)
             .map(|_| if r.next(4) == 0 { 99_999_999_999_000 + r.next(1000) } else { r.next(12) })
             .collect();
         let u = unit(&text);

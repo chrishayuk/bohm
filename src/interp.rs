@@ -4,11 +4,25 @@
 //! A group name is a positive integer (3.33): here, the position of the
 //! group's first formula. π holds the position of the next formula. Each
 //! formula is one step, whatever its size.
+//!
+//! The thesis does not say in what order a formula reads its operands, which
+//! matters only when it reads `?` more than once. Here it is the order of the
+//! instructions chapters 5 and 6 write for the formula: a polynomial left to
+//! right, a bracketed formula in the order of (5.32) (see `eval_bracketed`).
+//! That rule is ours, chosen so that the readings agree.
 
-use crate::compile::Unit;
+use crate::compile::{Normal, Unit};
 use crate::machine::{Fault, CELLS, IO, PI};
 use crate::syntax::{Cell, Expr};
 use std::collections::VecDeque;
+
+fn is_operation(e: &Expr) -> bool {
+    match e {
+        Expr::Paren(inner) => is_operation(inner),
+        Expr::Bin(..) => true,
+        _ => false,
+    }
+}
 
 pub struct Interp<'a> {
     unit: &'a Unit,
@@ -77,6 +91,31 @@ impl<'a> Interp<'a> {
         }
     }
 
+    /// A bracketed formula, operands read in the order the machine reads
+    /// them. Chapter 5 numbers the operations in the order their opening
+    /// brackets are met and writes them in decreasing order (5.32), so the
+    /// right operand's operations come before the left's, and both before
+    /// the operation itself, which reads its own plain operands left first.
+    fn eval_bracketed(&mut self, e: &Expr) -> Result<u64, Fault> {
+        match e {
+            Expr::Paren(inner) => self.eval_bracketed(inner),
+            Expr::Bin(l, op, r) => {
+                let rv = if is_operation(r) { Some(self.eval_bracketed(r)?) } else { None };
+                let lv = if is_operation(l) { Some(self.eval_bracketed(l)?) } else { None };
+                let a = match lv {
+                    Some(v) => v,
+                    None => self.eval(l)?,
+                };
+                let b = match rv {
+                    Some(v) => v,
+                    None => self.eval(r)?,
+                };
+                op.apply(a, b)
+            }
+            e => self.eval(e),
+        }
+    }
+
     pub fn run(&mut self, limit: u64) -> Result<(), Fault> {
         loop {
             let pc = self.mem[PI];
@@ -93,8 +132,12 @@ impl<'a> Interp<'a> {
             self.steps += 1;
             self.mem[PI] = pc + 1;
             let unit = self.unit;
-            let f = &unit.items[self.steps_of[pc as usize - 1]].formula;
-            let v = self.eval(&f.src)?;
+            let item = &unit.items[self.steps_of[pc as usize - 1]];
+            let f = &item.formula;
+            let v = match item.normal {
+                Normal::Paren { .. } => self.eval_bracketed(&f.src)?,
+                _ => self.eval(&f.src)?,
+            };
             match self.address(&f.dst)? {
                 PI => self.mem[PI] = v % 10_000,
                 IO => self.output.push(v),
