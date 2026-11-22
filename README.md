@@ -62,12 +62,12 @@ echo "π' → A
 bohm run answer.bohm
 ```
 
-For Visual Studio Code, download `bohm-language-0.1.1.vsix` from the
+For Visual Studio Code, download `bohm-language-0.1.2.vsix` from the
 [latest release](https://github.com/chrishayuk/bohm/releases/latest) and
 install it:
 
 ```
-code --install-extension bohm-language-0.1.1.vsix
+code --install-extension bohm-language-0.1.2.vsix
 ```
 
 Open any `.bohm` file and you get highlighting, hover help, problems as you

@@ -2,7 +2,7 @@
   "name": "bohm-language",
   "displayName": "Böhm (1951)",
   "description": "Syntax highlighting, a language server and run commands for the language of Corrado Böhm's 1951 dissertation.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "chrishayuk",
   "license": "Apache-2.0",
   "repository": {
