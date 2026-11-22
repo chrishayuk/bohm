@@ -265,3 +265,9 @@ the pages that the corrections rest on.
   <https://raspi.itu.dk/~sestoft/boehmthesis/>.
 * Donald E. Knuth and Luis Trabb Pardo, *The Early Development of
   Programming Languages*, Stanford STAN-CS-76-562, 1976, pp. 35–42.
+
+## Licence
+
+Apache License 2.0 - see [LICENSE](LICENSE). That covers the code, the
+examples and the tutorial. The page images in `docs/scans` are reproduced
+for reference and remain the copyright of their authors and publishers.
