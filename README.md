@@ -278,7 +278,12 @@ compiler; his translation does not say which corrections he needed.
   is correct as algebra, but it names a group S and a variable X. Compiled by
   Böhm's method it stops at once with no output.
   `programs/tpk-renamed.bohm` changes the two names and runs (ours: putting
-  its formulas in brackets would also do).
+  its formulas in brackets would also do). The reservation itself is known:
+  Sestoft's translation notes that "the group labels S and V are not used in
+  the chapter 7 compiler since they are used in the translation of
+  polynomials (chapter 6)" (appendix A.1, p. 47). A search in November 2026
+  found no one connecting it with TPK, and Knuth's errata for the reprint
+  leave the Böhm program unchanged.
 
 A compiler cannot be compiled with its own base constant m: it keeps its
 parenthesis stack in the cells above m, and the code it writes keeps
